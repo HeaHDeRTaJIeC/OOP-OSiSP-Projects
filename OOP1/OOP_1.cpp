@@ -2,13 +2,13 @@
 //
 
 #include "stdafx.h"
-#include "OOP_LabRab1.h"
-#include "SHAPES.h"
-#include "TRIANGLES.h"
-#include "RECTANGLES.h"
-#include "LINES.h"
-#include "ELLIPSES.h"
-#include "LISTS.h"
+#include "OOP_1.h"
+#include "../SHAPES/SHAPES.h"
+#include "../TRIANGLES/TRIANGLES.h"
+#include "../RECTANGLES/RECTANGLES.h"
+#include "../LINES/LINES.h"
+#include "../ELLIPSES/ELLIPSES.h"
+#include "../LISTS/LISTS.h"
 
 #define MAX_LOADSTRING 100
 
@@ -76,7 +76,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 
 	// Initialize global strings
 	LoadString(hInstance, IDS_APP_TITLE, szTitle, MAX_LOADSTRING);
-	LoadString(hInstance, IDC_OOP_LABRAB1, szWindowClass, MAX_LOADSTRING);
+	LoadString(hInstance, IDC_OOP_1, szWindowClass, MAX_LOADSTRING);
 	MyRegisterClass(hInstance);
 
 	// Perform application initialization:
@@ -85,7 +85,7 @@ int APIENTRY _tWinMain(_In_ HINSTANCE hInstance,
 		return FALSE;
 	}
 
-	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_OOP_LABRAB1));
+	hAccelTable = LoadAccelerators(hInstance, MAKEINTRESOURCE(IDC_OOP_1));
 
 	// Main message loop:
 	while (GetMessage(&msg, NULL, 0, 0))
@@ -118,10 +118,10 @@ ATOM MyRegisterClass(HINSTANCE hInstance)
 	wcex.cbClsExtra		= 0;
 	wcex.cbWndExtra		= 0;
 	wcex.hInstance		= hInstance;
-	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_OOP_LABRAB1));
+	wcex.hIcon			= LoadIcon(hInstance, MAKEINTRESOURCE(IDI_OOP_1));
 	wcex.hCursor		= LoadCursor(NULL, IDC_ARROW);
 	wcex.hbrBackground	= (HBRUSH)(COLOR_WINDOW+1);
-	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_OOP_LABRAB1);
+	wcex.lpszMenuName	= MAKEINTRESOURCE(IDC_OOP_1);
 	wcex.lpszClassName	= szWindowClass;
 	wcex.hIconSm		= LoadIcon(wcex.hInstance, MAKEINTRESOURCE(IDI_SMALL));
 
