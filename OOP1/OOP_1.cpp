@@ -11,11 +11,15 @@
 #include "../LISTS/LISTS.h"
 
 #define MAX_LOADSTRING 100
+#define WIDTH 1200
+#define HEIGTH 1200
 
 // Global Variables:
 HINSTANCE hInst;								// current instance
 TCHAR szTitle[MAX_LOADSTRING];					// The title bar text
 TCHAR szWindowClass[MAX_LOADSTRING];			// the main window class name
+HDC MemDC;
+HBITMAP MemBM;
 
 // Forward declarations of functions included in this code module:
 ATOM				MyRegisterClass(HINSTANCE hInstance);
@@ -25,7 +29,6 @@ INT_PTR CALLBACK	About(HWND, UINT, WPARAM, LPARAM);
 void                PaintAll(HWND);
 
 Lists listBody, listTrucks, listBoom, listCross;
-bool flag = false;
 
     Triangles 
 		boom(800, 140, 1000, 155, 1000, 125);
@@ -152,6 +155,18 @@ BOOL InitInstance(HINSTANCE hInstance, int nCmdShow)
       return FALSE;
    }
 
+   HDC hdc = GetDC(hWnd);
+   MemDC = CreateCompatibleDC(hdc);
+   MemBM = CreateCompatibleBitmap(hdc, WIDTH, HEIGTH);
+   SelectObject(MemDC, MemBM);
+   HBRUSH brush = CreateSolidBrush(RGB(255, 255, 255));
+   HPEN pen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+   SelectObject(MemDC, pen);
+   SelectObject(MemDC, brush);
+   Rectangle(MemDC, 0, 0, WIDTH, HEIGTH);
+   DeleteObject(pen);
+   DeleteObject(brush);
+
    ShowWindow(hWnd, nCmdShow);
    UpdateWindow(hWnd);
 
@@ -173,6 +188,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	int wmId, wmEvent;
 	PAINTSTRUCT ps;
 	HDC hdc;
+	HPEN pen;
+	HBRUSH brush;
 
 	switch (message)
 	{
@@ -186,12 +203,17 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			DialogBox(hInst, MAKEINTRESOURCE(IDD_ABOUTBOX), hWnd, About);
 			break;
 		case ID_DRAW_ALL:
-			flag = true;
 			PaintAll(hWnd);
 			break;
 		case ID_DELETE_ALL:
-			flag = false;
-			UpdateWindow(hWnd);
+			brush = CreateSolidBrush(RGB(255, 255, 255));
+			pen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+			SelectObject(MemDC, pen);
+			SelectObject(MemDC, brush);
+			Rectangle(MemDC, 0, 0, WIDTH, HEIGTH);
+			DeleteObject(pen);
+			DeleteObject(brush);
+			InvalidateRect(hWnd, NULL, false);
 			break;
 		case IDM_EXIT:
 			DestroyWindow(hWnd);
@@ -202,8 +224,7 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		break;
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
-		if (flag)
-		   PaintAll(hWnd);
+		BitBlt(hdc, 0, 0, WIDTH, HEIGTH, MemDC, 0, 0, SRCCOPY);
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
@@ -217,27 +238,38 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 
 void PaintAll(HWND hWnd)
 {
-	HBRUSH brush;
-	HDC hdc = GetDC(hWnd);
+	HBRUSH brush = CreateSolidBrush(RGB(255, 255, 255));
+	HPEN pen = CreatePen(PS_SOLID, 1, RGB(255, 255, 255));
+	SelectObject(MemDC, pen);
+	SelectObject(MemDC, brush);
+	DeleteObject(pen);
+	pen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+	SelectObject(MemDC, pen);
+
+	Rectangle(MemDC, 0, 0, WIDTH, HEIGTH);
+
+
 	brush = CreateSolidBrush(RGB(50, 50, 50));
-	SelectObject(hdc, brush);
-	listBody.DrawList(hdc);
+	SelectObject(MemDC, brush);
+	listBody.DrawList(MemDC);
 	DeleteObject(brush);
 
 	brush = CreateSolidBrush(RGB(30, 30, 30));
-	SelectObject(hdc, brush);
-	listTrucks.DrawList(hdc);
+	SelectObject(MemDC, brush);
+	listTrucks.DrawList(MemDC);
 	DeleteObject(brush);
 
     brush = CreateSolidBrush(RGB(255, 30, 30));
-	SelectObject(hdc, brush);
-	listBoom.DrawList(hdc);
+	SelectObject(MemDC, brush);
+	listBoom.DrawList(MemDC);
 	DeleteObject(brush);
 
 	brush = CreateSolidBrush(RGB(0, 0, 0));
-	SelectObject(hdc, brush);
-	listCross.DrawList(hdc);
+	SelectObject(MemDC, brush);
+	listCross.DrawList(MemDC);
 	DeleteObject(brush);
+
+	InvalidateRect(hWnd, NULL, false);
 }
 
 // Message handler for about box.

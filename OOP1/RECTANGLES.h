@@ -3,7 +3,7 @@
 #ifndef RECTANGLE_H
 #define RECTANGLE_H
 
-class Rectangles : public Shapes
+class _declspec(dllexport) Rectangles : public Shapes
 {
 public:
    Rectangles(int = 0, int = 0, int = 0, int = 0);

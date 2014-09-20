@@ -4,7 +4,7 @@
 #ifndef ELLIPSES_H
 #define ELLIPSES_H
 
-class Ellipses : public Shapes
+class _declspec(dllexport) Ellipses : public Shapes
 {
 public:
     Ellipses(int = 0, int = 0, int = 0, int = 0);

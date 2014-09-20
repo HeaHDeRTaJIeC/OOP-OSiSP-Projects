@@ -9,7 +9,7 @@ struct Node
 	Node *next;
 };
 
-class Lists 
+class _declspec(dllexport) Lists 
 {
 public:
 	Lists();

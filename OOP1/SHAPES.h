@@ -4,7 +4,7 @@
 #ifndef SHAPES_H
 #define SHAPES_H
 
-class Shapes
+class _declspec(dllexport) Shapes
 {
 public:
 	virtual void Draw(HDC) = 0;
