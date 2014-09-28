@@ -7,7 +7,7 @@
 #define MAX_LOADSTRING 100
 #define USER_WIDTH 1000
 #define USER_HEIGTH 500
-#define OFFSET_STEP 100
+#define OFFSET_STEP 10
 
 // Global Variables:
 HINSTANCE hInst;								// current instance
@@ -44,11 +44,17 @@ TCHAR *keyPtr;
 
 bool MousePressed = false;
 bool TextPressed = false;
+bool CtrlPressed = false;
+bool ShiftPressed = false;
 static int x, y, x0, y0, xPolygon, yPolygon;
+static int xPosition = 0;
+static int	yPosition = 0;
+static double Zoom = 1;
 int type = 0;
 int PenSize = 1;
 int TextLength = 1;
 int PanRight = 0;
+int PanDown = 0;
 
 
 // Forward declarations of functions included in this code module:
@@ -386,6 +392,67 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		DeleteObject(CurrentPen);
 		break;
 	}
+	case WM_MOUSEWHEEL:
+		if (CtrlPressed)
+		{
+			if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
+				if (Zoom < 2)
+					Zoom += 0.1;
+			if (GET_WHEEL_DELTA_WPARAM(wParam) > 0)
+				if (Zoom > 0.1)
+					Zoom -= 0.1;
+		}
+		else
+			if (ShiftPressed)
+				if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
+				{
+					xPosition += (int) (OFFSET_STEP * Zoom);
+					PanRight++;
+				}
+				else
+				{
+					xPosition -= (int) (OFFSET_STEP * Zoom);
+					PanRight--;
+				}
+			else
+				if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
+				{
+					yPosition -= (int) (OFFSET_STEP * Zoom);
+					PanDown++;
+				}
+				else
+				{
+					yPosition += (int) (OFFSET_STEP * Zoom);
+					PanDown--;
+				}
+		InvalidateRect(hWnd, NULL, true);
+		break;
+	case WM_KEYDOWN:
+		switch(wParam)
+		{
+			case VK_CONTROL:
+				CtrlPressed = true;
+				break;
+			case VK_SHIFT:
+				ShiftPressed = true;
+				break;
+			default:
+				break;
+		}
+		break;
+	case WM_KEYUP:
+		switch(wParam)
+		{
+			case VK_CONTROL:
+				CtrlPressed = false;
+				break;
+			case VK_SHIFT:
+				ShiftPressed = false;
+				break;
+			default:
+				break;
+		}
+		break;
 	case WM_CHAR:
 		if (TextPressed)
 		{
@@ -627,6 +694,22 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 			PanRight++;
 			InvalidateRect(hWnd, NULL, true);
 			break;
+		case ID_PAN_UP:
+			PanDown--;
+			InvalidateRect(hWnd, NULL, true);
+			break;
+		case ID_PAN_DOWN:
+			PanDown++;
+			InvalidateRect(hWnd, NULL, true);
+			break;
+		case ID_PAN_MIDDLE:
+			PanRight = 0;
+			PanDown = 0;
+			Zoom = 1;
+			xPosition = 0;
+			yPosition = 0;
+			InvalidateRect(hWnd, NULL, true);
+			break;
 		default:
 			return DefWindowProc(hWnd, message, wParam, lParam);
 		}
@@ -634,7 +717,10 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		PrepareDC();
-		BitBlt(hdc, PanRight*OFFSET_STEP, 0, USER_WIDTH + PanRight*OFFSET_STEP, USER_HEIGTH, UserDC, 0, 0, SRCCOPY);
+		StretchBlt(hdc, 0 /*PanRight * OFFSET_STEP*/ ,  0/*PanDown * OFFSET_STEP*/, 
+			USER_WIDTH /*+ PanRight * OFFSET_STEP*/, USER_HEIGTH /*+ PanDown * OFFSET_STEP*/,
+			UserDC, xPosition, yPosition,
+			xPosition + (int) (USER_WIDTH * Zoom), yPosition + (int) (USER_HEIGTH * Zoom), SRCCOPY);
 		EndPaint(hWnd, &ps);
 		break;
 	case WM_DESTROY:
