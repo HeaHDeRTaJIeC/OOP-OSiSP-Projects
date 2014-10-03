@@ -41,12 +41,14 @@ DOCINFO docInfo;
 CString TextFace;
 TCHAR key;
 TCHAR *keyPtr;
+POINT *PolygonPoints;
 
 bool MousePressed = false;
 bool TextPressed = false;
 bool CtrlPressed = false;
 bool ShiftPressed = false;
-static int x, y, x0, y0, xPolygon, yPolygon;
+bool DrawAllowed = true;
+static int x, y, x0, y0;
 static int xPosition = 0;
 static int	yPosition = 0;
 static double Zoom = 1;
@@ -55,6 +57,8 @@ int PenSize = 1;
 int TextLength = 1;
 int PanRight = 0;
 int PanDown = 0;
+int Index = 0;
+
 
 
 // Forward declarations of functions included in this code module:
@@ -221,178 +225,203 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	{
 	case WM_RBUTTONDOWN:
 	{
-		if (type == 2)
+		if (DrawAllowed)
 		{
-			TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, DynamicDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorDynamic);
-			MousePressed = false;
-		}
-		if (type == 8)
-		{
-			CurrentPen = CreatePen(PS_SOLID, PenSize, PenColor);
-			SelectObject(StaticDC, CurrentPen);
-			MoveToEx(StaticDC, x0, y0, NULL);
-			LineTo(StaticDC, xPolygon, yPolygon);
-			MousePressed = false;
+			if (type == 2)
+			{
+				TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, DynamicDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorDynamic);
+				MousePressed = false;
+			}
+			if (type == 8)
+			{
+				CurrentPen = CreatePen(PS_SOLID, PenSize, PenColor);
+				SelectObject(StaticDC, CurrentPen);
+				CurrentBrush = CreateSolidBrush(BrushColor);
+				SelectObject(StaticDC, CurrentBrush);
+				Polygon(StaticDC, PolygonPoints, Index);
+				Index = 0;
+				MousePressed = false;
+			}
 		}
 		break;
 	}
 	case WM_LBUTTONDOWN:
 	{
-		if (type != 2 && type != 8)
+		if (DrawAllowed)
 		{
-			x0 = LOWORD(lParam);
-			y0 = HIWORD(lParam);
-			x = x0;
-			y = y0;
-			if (type == 7)
-				if (TextPressed)
+			if (type != 2 && type != 8)
+			{
+				x0 = LOWORD(lParam);
+				y0 = HIWORD(lParam);
+				x = x0;
+				y = y0;
+				if (type == 7)
+					if (TextPressed)
+					{
+						TextLength = 1;
+						OutputText = (TCHAR*) realloc(OutputText, sizeof(TCHAR)*TextLength);
+						OutputText[TextLength-1] = '\0';
+						TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, TextDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorText);
+					}
+					else
+						TextPressed = true;
+				else
+					MousePressed = true;
+			}
+			else
+			{
+				if (MousePressed)
 				{
-					TextLength = 1;
-					OutputText = (TCHAR*) realloc(OutputText, sizeof(TCHAR)*TextLength);
-					OutputText[TextLength-1] = '\0';
-					TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, TextDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorText);
+					TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, DynamicDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorDynamic);
+					x0 = LOWORD(lParam);
+					y0 = HIWORD(lParam);
+					Index++;
+					PolygonPoints = (POINT *) realloc(PolygonPoints, sizeof(POINT) * Index);
+					PolygonPoints[Index - 1].x = x0;
+					PolygonPoints[Index - 1].y = y0;
 				}
 				else
-					TextPressed = true;
-			else
-				MousePressed = true;
-		}
-		else
-		{
-			if (MousePressed)
-			{
-				TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, DynamicDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorDynamic);
-				x0 = LOWORD(lParam);
-				y0 = HIWORD(lParam);
+				{
+					MousePressed = true;
+					x0 = LOWORD(lParam);
+					y0 = HIWORD(lParam);
+					Index++;
+					PolygonPoints = (POINT *) malloc (sizeof(POINT) * Index);
+					PolygonPoints[Index - 1].x = x0;
+					PolygonPoints[Index - 1].y = y0;
+				}
 			}
-			else
-			{
-				MousePressed = true;
-				xPolygon = LOWORD(lParam);
-				yPolygon = HIWORD(lParam);
-				x0 = LOWORD(lParam);
-				y0 = HIWORD(lParam);
-			}
+			InvalidateRect(hWnd, NULL, false);
 		}
-		InvalidateRect(hWnd, NULL, false);
 		break;
 	}
 	case WM_LBUTTONUP:
 	{
-		if (type != 2 && type !=7 && type != 8)
-			MousePressed = false;
-		else
+		if (DrawAllowed)
 		{
-			x0 = LOWORD(lParam);
-			y0 = HIWORD(lParam);
+			if (type != 2 && type !=7 && type != 8)
+				MousePressed = false;
+			else
+			{
+				x0 = LOWORD(lParam);
+				y0 = HIWORD(lParam);
+				Index++;
+				PolygonPoints = (POINT *) realloc(PolygonPoints, sizeof(POINT) * Index);
+				PolygonPoints[Index - 1].x = x0;
+				PolygonPoints[Index - 1].y = y0;
+			}
+			if (type != 6)
+				TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, DynamicDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorDynamic);
 		}
-		if (type != 6)
-			TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, DynamicDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorDynamic);
 		break;
 	}
 	case WM_MOUSEMOVE:
 	{
-		if (type != 7)
+		if (DrawAllowed)
 		{
-			TransparentBrush = CreateSolidBrush(TransparentColorDynamic);
-			SelectObject(DynamicDC, TransparentBrush);
-			TransparentPen = CreatePen(PS_SOLID, PenSize, TransparentColorDynamic);
-			SelectObject(DynamicDC, TransparentPen);
-			Rectangle(DynamicDC, 0, 0, USER_WIDTH, USER_HEIGTH);
-			DeleteObject(TransparentBrush);
-			DeleteObject(TransparentPen);
+			if (type != 7)
+			{
+				TransparentBrush = CreateSolidBrush(TransparentColorDynamic);
+				SelectObject(DynamicDC, TransparentBrush);
+				TransparentPen = CreatePen(PS_SOLID, PenSize, TransparentColorDynamic);
+				SelectObject(DynamicDC, TransparentPen);
+				Rectangle(DynamicDC, 0, 0, USER_WIDTH, USER_HEIGTH);
+				DeleteObject(TransparentBrush);
+				DeleteObject(TransparentPen);
 
-			InvalidateRect(hWnd, NULL, false);
+				InvalidateRect(hWnd, NULL, false);
 
-			CurrentBrush = CreateSolidBrush(BrushColor);
-			CurrentPen = CreatePen(PS_SOLID, PenSize, PenColor);
+				CurrentBrush = CreateSolidBrush(BrushColor);
+				CurrentPen = CreatePen(PS_SOLID, PenSize, PenColor);
 
-			if (MousePressed)
-				switch (type)
-				{
-				case 0:
-					SelectObject(StaticDC, CurrentPen);
-					MoveToEx(StaticDC, x, y, NULL);
-					x = LOWORD(lParam);
-					y = HIWORD(lParam);
-					LineTo(StaticDC, x, y);
-					break;
-				case 1:
-					SelectObject(DynamicDC, CurrentPen);
-					MoveToEx(DynamicDC, x0, y0, NULL);
-					LineTo(DynamicDC, LOWORD(lParam), HIWORD(lParam));
-					break;
-				case 2:
-					SelectObject(DynamicDC, CurrentPen);
-					MoveToEx(DynamicDC, x0, y0, NULL);
-					LineTo(DynamicDC, LOWORD(lParam), HIWORD(lParam));
-					break;
-				case 3:
-					SelectObject(DynamicDC, CurrentPen);
-					SelectObject(DynamicDC, CurrentBrush);
+				if (MousePressed)
+					switch (type)
+					{
+					case 0:
+						SelectObject(StaticDC, CurrentPen);
+						MoveToEx(StaticDC, x, y, NULL);
+						x = LOWORD(lParam);
+						y = HIWORD(lParam);
+						LineTo(StaticDC, x, y);
+						break;
+					case 1:
+						SelectObject(DynamicDC, CurrentPen);
+						MoveToEx(DynamicDC, x0, y0, NULL);
+						LineTo(DynamicDC, LOWORD(lParam), HIWORD(lParam));
+						break;
+					case 2:
+						SelectObject(DynamicDC, CurrentPen);
+						MoveToEx(DynamicDC, x0, y0, NULL);
+						LineTo(DynamicDC, LOWORD(lParam), HIWORD(lParam));
+						break;
+					case 3:
+						SelectObject(DynamicDC, CurrentPen);
+						SelectObject(DynamicDC, CurrentBrush);
 
-					Triangle = new POINT[3];
-					Triangle[0].x = (x0 + LOWORD(lParam))/2;
-					Triangle[0].y = y0;
-					Triangle[1].x = x0;
-					Triangle[1].y = HIWORD(lParam);
-					Triangle[2].x = LOWORD(lParam);
-					Triangle[2].y = HIWORD(lParam);
+						Triangle = new POINT[3];
+						Triangle[0].x = (x0 + LOWORD(lParam))/2;
+						Triangle[0].y = y0;
+						Triangle[1].x = x0;
+						Triangle[1].y = HIWORD(lParam);
+						Triangle[2].x = LOWORD(lParam);
+						Triangle[2].y = HIWORD(lParam);
 				
-					Polygon(DynamicDC, Triangle, 3);
-					delete [] Triangle;
-					break;
-				case 4:
-					SelectObject(DynamicDC, CurrentPen);
-					SelectObject(DynamicDC, CurrentBrush);
-					Rectangle(DynamicDC, x0, y0, LOWORD(lParam), HIWORD(lParam));
-					break;
-				case 5:
-					SelectObject(DynamicDC, CurrentPen);
-					SelectObject(DynamicDC, CurrentBrush);
-					Ellipse(DynamicDC, x0, y0, LOWORD(lParam), HIWORD(lParam));
-					break;
-				case 6:
-					InvisiblePen = CreatePen(PS_SOLID, 10, BackGroundColor);
-					SelectObject(StaticDC, InvisiblePen);
-					ErasePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-					EraseBrush = CreateSolidBrush(RGB(255, 255, 255));
-					SelectObject(DynamicDC, ErasePen);
-					SelectObject(DynamicDC, EraseBrush);
-					Rectangle(DynamicDC, LOWORD(lParam) - 5, HIWORD(lParam) - 5, LOWORD(lParam) + 5, HIWORD(lParam) + 5);
-					MoveToEx(StaticDC, x, y, NULL);
-					x = LOWORD(lParam);
-					y = HIWORD(lParam);
-					LineTo(StaticDC, x, y);
-					break;
-				case 8:
-					SelectObject(DynamicDC, CurrentPen);
-					MoveToEx(DynamicDC, x0, y0, NULL);
-					LineTo(DynamicDC, LOWORD(lParam), HIWORD(lParam));
-					break;
-				default:
-					break;
-				}
+						Polygon(DynamicDC, Triangle, 3);
+						delete [] Triangle;
+						break;
+					case 4:
+						SelectObject(DynamicDC, CurrentPen);
+						SelectObject(DynamicDC, CurrentBrush);
+						Rectangle(DynamicDC, x0, y0, LOWORD(lParam), HIWORD(lParam));
+						break;
+					case 5:
+						SelectObject(DynamicDC, CurrentPen);
+						SelectObject(DynamicDC, CurrentBrush);
+						Ellipse(DynamicDC, x0, y0, LOWORD(lParam), HIWORD(lParam));
+						break;
+					case 6:
+						InvisiblePen = CreatePen(PS_SOLID, 10, BackGroundColor);
+						SelectObject(StaticDC, InvisiblePen);
+						ErasePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+						EraseBrush = CreateSolidBrush(RGB(255, 255, 255));
+						SelectObject(DynamicDC, ErasePen);
+						SelectObject(DynamicDC, EraseBrush);
+						Rectangle(DynamicDC, LOWORD(lParam) - 5, HIWORD(lParam) - 5, LOWORD(lParam) + 5, HIWORD(lParam) + 5);
+						MoveToEx(StaticDC, x, y, NULL);
+						x = LOWORD(lParam);
+						y = HIWORD(lParam);
+						LineTo(StaticDC, x, y);
+						break;
+					case 8:
+						SelectObject(DynamicDC, CurrentPen);
+						MoveToEx(DynamicDC, x0, y0, NULL);
+						LineTo(DynamicDC, LOWORD(lParam), HIWORD(lParam));
+						break;
+					default:
+						break;
+					}
+				else
+					if (type == 6)
+					{
+						ErasePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
+						EraseBrush = CreateSolidBrush(RGB(255, 255, 255));
+						SelectObject(DynamicDC, ErasePen);
+						SelectObject(DynamicDC, EraseBrush);
+						Rectangle(DynamicDC, LOWORD(lParam) - 5, HIWORD(lParam) - 5, LOWORD(lParam) + 5, HIWORD(lParam) + 5);
+					}
+			}
 			else
-				if (type == 6)
-				{
-					ErasePen = CreatePen(PS_SOLID, 1, RGB(0, 0, 0));
-					EraseBrush = CreateSolidBrush(RGB(255, 255, 255));
-					SelectObject(DynamicDC, ErasePen);
-					SelectObject(DynamicDC, EraseBrush);
-					Rectangle(DynamicDC, LOWORD(lParam) - 5, HIWORD(lParam) - 5, LOWORD(lParam) + 5, HIWORD(lParam) + 5);
-				}
+			{
+				PrepareDC();
+				InvalidateRect(hWnd, NULL, false);
+			}
+			DeleteObject(CurrentBrush);
+			DeleteObject(CurrentPen);
 		}
-		else
-		{
-			PrepareDC();
-			InvalidateRect(hWnd, NULL, false);
-		}
-		DeleteObject(CurrentBrush);
-		DeleteObject(CurrentPen);
 		break;
 	}
 	case WM_MOUSEWHEEL:
+		DrawAllowed = false;
 		if (CtrlPressed)
 		{
 			if (GET_WHEEL_DELTA_WPARAM(wParam) < 0)
@@ -454,13 +483,37 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 		}
 		break;
 	case WM_CHAR:
-		if (TextPressed)
+		if (DrawAllowed)
 		{
-			switch(wParam)
+			if (TextPressed)
 			{
-			case 0x08:
-				if (TextLength > 1)
+				switch(wParam)
 				{
+				case 0x08:
+					if (TextLength > 1)
+					{
+						TransparentPen = CreatePen(PS_SOLID, 1, TransparentColorText);
+						SelectObject(TextDC, TransparentPen);
+						TransparentBrush = CreateSolidBrush(TransparentColorText);
+						SelectObject(TextDC, TransparentBrush);
+						Rectangle(TextDC, 0, 0, USER_WIDTH, USER_HEIGTH);
+						DeleteObject(TransparentPen);
+						DeleteObject(TransparentBrush);
+						TextLength--;
+						OutputText = (TCHAR *) realloc(OutputText, sizeof(TCHAR)*TextLength);
+						OutputText[TextLength-1] = '\0';
+						TextOut(TextDC, x0, y0, OutputText, TextLength-1);
+					}
+					break;
+				case 0x0D:
+					TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, TextDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorText);
+					TextLength = 1;
+					OutputText = (TCHAR *) realloc(OutputText, sizeof(TCHAR)*TextLength);
+					OutputText[TextLength-1] = '\0';
+					TextPressed = false;
+					break;
+				case 0x1B:
+					TextPressed = false;
 					TransparentPen = CreatePen(PS_SOLID, 1, TransparentColorText);
 					SelectObject(TextDC, TransparentPen);
 					TransparentBrush = CreateSolidBrush(TransparentColorText);
@@ -468,44 +521,23 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 					Rectangle(TextDC, 0, 0, USER_WIDTH, USER_HEIGTH);
 					DeleteObject(TransparentPen);
 					DeleteObject(TransparentBrush);
-					TextLength--;
+					TextLength = 1;
 					OutputText = (TCHAR *) realloc(OutputText, sizeof(TCHAR)*TextLength);
 					OutputText[TextLength-1] = '\0';
-					TextOut(TextDC, x0, y0, OutputText, TextLength-1);
+					break;
+				default:
+					{
+						key = (TCHAR) wParam;
+						OutputText[TextLength-1] = key;
+						TextLength++;
+						OutputText = (TCHAR *) realloc(OutputText, sizeof(TCHAR)*(TextLength));
+						OutputText[TextLength-1] = '\0';
+						TextOut(TextDC, x0, y0, OutputText, TextLength-1);
+					}
+					break;
 				}
-				break;
-			case 0x0D:
-				TransparentBlt(StaticDC, 0, 0, USER_WIDTH, USER_HEIGTH, TextDC, 0, 0, USER_WIDTH, USER_HEIGTH, TransparentColorText);
-				TextLength = 1;
-				OutputText = (TCHAR *) realloc(OutputText, sizeof(TCHAR)*TextLength);
-				OutputText[TextLength-1] = '\0';
-				TextPressed = false;
-				break;
-			case 0x1B:
-				TextPressed = false;
-				TransparentPen = CreatePen(PS_SOLID, 1, TransparentColorText);
-				SelectObject(TextDC, TransparentPen);
-				TransparentBrush = CreateSolidBrush(TransparentColorText);
-				SelectObject(TextDC, TransparentBrush);
-				Rectangle(TextDC, 0, 0, USER_WIDTH, USER_HEIGTH);
-				DeleteObject(TransparentPen);
-				DeleteObject(TransparentBrush);
-				TextLength = 1;
-				OutputText = (TCHAR *) realloc(OutputText, sizeof(TCHAR)*TextLength);
-				OutputText[TextLength-1] = '\0';
-				break;
-			default:
-				{
-					key = (TCHAR) wParam;
-					OutputText[TextLength-1] = key;
-					TextLength++;
-					OutputText = (TCHAR *) realloc(OutputText, sizeof(TCHAR)*(TextLength));
-					OutputText[TextLength-1] = '\0';
-					TextOut(TextDC, x0, y0, OutputText, TextLength-1);
-				}
-				break;
+				InvalidateRect(hWnd, NULL, false);
 			}
-			InvalidateRect(hWnd, NULL, false);
 		}
 		break;
 
@@ -686,23 +718,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 				DeleteDC(dlgPrint.hDC);
 			}
 			break;
-		case ID_PAN_LEFT:
-			PanRight--;
-			InvalidateRect(hWnd, NULL, true);
-			break;
-		case ID_PAN_RIGHT:
-			PanRight++;
-			InvalidateRect(hWnd, NULL, true);
-			break;
-		case ID_PAN_UP:
-			PanDown--;
-			InvalidateRect(hWnd, NULL, true);
-			break;
-		case ID_PAN_DOWN:
-			PanDown++;
-			InvalidateRect(hWnd, NULL, true);
-			break;
 		case ID_PAN_MIDDLE:
+			DrawAllowed = true;
 			PanRight = 0;
 			PanDown = 0;
 			Zoom = 1;
@@ -717,9 +734,8 @@ LRESULT CALLBACK WndProc(HWND hWnd, UINT message, WPARAM wParam, LPARAM lParam)
 	case WM_PAINT:
 		hdc = BeginPaint(hWnd, &ps);
 		PrepareDC();
-		StretchBlt(hdc, 0 /*PanRight * OFFSET_STEP*/ ,  0/*PanDown * OFFSET_STEP*/, 
-			USER_WIDTH /*+ PanRight * OFFSET_STEP*/, USER_HEIGTH /*+ PanDown * OFFSET_STEP*/,
-			UserDC, xPosition, yPosition,
+		StretchBlt(hdc, 0,  0, USER_WIDTH, USER_HEIGTH,
+			UserDC, xPosition, yPosition, 
 			xPosition + (int) (USER_WIDTH * Zoom), yPosition + (int) (USER_HEIGTH * Zoom), SRCCOPY);
 		EndPaint(hWnd, &ps);
 		break;
