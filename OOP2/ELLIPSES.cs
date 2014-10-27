@@ -8,11 +8,26 @@ using System.Drawing;
 
 public class ELLIPSES : SHAPES
 {
-    public ELLIPSES(Point first, Point second)
+    public ELLIPSES()
     {
-        Rect.Location = first;
-        Rect.Width = second.X - first.X;
-        Rect.Height = second.Y - first.Y;
+        Number = 0;
+    }
+
+    public override void Add(Point current, Graphics e)
+    {
+        if (Number == 0)
+        {
+            Rect.Location = current;
+            ++Number;
+        }
+        else
+            if (Number == 1)
+            {
+                Rect.Width = current.X - Rect.Location.X;
+                Rect.Height = current.Y - Rect.Location.Y;
+                Draw(e);
+                ++Number;
+            }
     }
 
     public override void Draw(Graphics e)
@@ -21,6 +36,7 @@ public class ELLIPSES : SHAPES
     }
 
     private Rectangle Rect;
+    private int Number;
 
 }
 

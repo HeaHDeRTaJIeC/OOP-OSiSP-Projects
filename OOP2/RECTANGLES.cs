@@ -8,10 +8,25 @@ using System.Drawing;
 
 public class RECTANGLES : SHAPES
 {
-    public RECTANGLES(Point first, Point second)
+    public RECTANGLES()
     {
-        First = first;
-        Second = second;
+        Number = 0;
+    }
+
+    public override void Add(Point current, Graphics e)
+    {
+        if (Number == 0)
+        {
+            First = current;
+            ++Number;
+        }
+        else
+            if (Number == 1)
+            {
+                Second = current;
+                Draw(e);
+                ++Number;
+            }
     }
 
     public override void Draw(Graphics e)
@@ -21,6 +36,6 @@ public class RECTANGLES : SHAPES
 
     private Point First;
     private Point Second;
-
+    private int Number;
 }
 

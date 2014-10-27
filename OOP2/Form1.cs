@@ -16,7 +16,6 @@ namespace OOP2
     {
         Graphics PlaceToDraw;
         SHAPES Shape;
-        Point[] Points;
 
         private List<Type> ShapesTypes;
         private List<SHAPES> list;
@@ -26,9 +25,10 @@ namespace OOP2
         {
             InitializeComponent();
 
-            AddMenu();
             PlaceToDraw = pictureBox1.CreateGraphics();
+            AddMenu();
             list = new List<SHAPES>();
+            pictureBox1.MouseClick += new MouseEventHandler(MouseClickShape);
         }
 
         private void AddMenu()
@@ -46,7 +46,6 @@ namespace OOP2
                     Text = type.Name,
                     Tag = type,
                 };
-
                 MenuItem.Click += ShapeItemClick;
                 shapesToolStripMenuItem.DropDownItems.Add(MenuItem);
             }
@@ -56,27 +55,30 @@ namespace OOP2
 
         private void ShapeItemClick(object sender, EventArgs e)
         {
-            Point one = new Point();
-            Point two = new Point();
-            try
-            {
-                one.X = int.Parse(textBox1.Text);
-                one.Y = int.Parse(textBox2.Text);
-                two.X = int.Parse(textBox3.Text);
-                two.Y = int.Parse(textBox4.Text);
-            }
-            catch
-            {
-                one.X = rand.Next(10, pictureBox1.Width - 10);
-                one.Y = rand.Next(10, pictureBox1.Height - 10);
-                two.X = rand.Next(10, pictureBox1.Width - 10);
-                two.Y = rand.Next(10, pictureBox1.Height - 10);
-            }
-
-            Shape = (SHAPES)Activator.CreateInstance((Type)((ToolStripButton)sender).Tag, one, two);
-            Shape.Draw(PlaceToDraw);
+            Shape = (SHAPES)Activator.CreateInstance((Type)((Control)sender).Tag);
             list.Add(Shape);
         }
 
+        private void clearFormToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            pictureBox1.Refresh();
+        }
+
+        private void paintListToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            foreach (var Item in list)
+            {
+                Item.Draw(PlaceToDraw);
+            }
+        }
+
+        private void MouseClickShape(object sender, MouseEventArgs e)
+        {
+            if (e.Button == MouseButtons.Left)
+                Shape.Add(e.Location, PlaceToDraw);
+            else
+                if (e.Button == MouseButtons.Right)
+                    list.Add(Shape);
+        }
     }
 }

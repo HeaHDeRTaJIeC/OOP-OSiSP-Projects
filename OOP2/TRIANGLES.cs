@@ -8,11 +8,27 @@ using System.Drawing;
 
 public class TRIANGLES : SHAPES
 {
-    public TRIANGLES(Point first, Point second)
+    public TRIANGLES()
     {
-        First = first;
-        Second = second;
+        Number = 0;
     }
+
+    public override void Add(Point current, Graphics e)
+    {
+        if (Number == 0)
+        {
+            First = current;
+            ++Number;
+        }
+        else
+            if (Number == 1)
+            {
+                Second = current;
+                Draw(e);
+                ++Number;
+            }
+    }
+
     public override void Draw(Graphics e)
     {
         Point one = new Point();
@@ -31,5 +47,6 @@ public class TRIANGLES : SHAPES
 
     private Point First;
     private Point Second;
+    private int Number;
 }
 
