@@ -1,6 +1,4 @@
-#include "stdafx.h"
 #include "THREADPOOL.h"
-#include "OSISP2.h"
 
 
 Task::Task()
@@ -8,17 +6,17 @@ Task::Task()
 	Milisec = 1;
 }
 
-Task::Task(int K)
+Task::Task(long K)
 {
 	Milisec = K;
 }
 
-void Task::SetTask(int K)
+void Task::SetTask(long K)
 {
 	Milisec = K;
 }
 
-int Task::GetTask()
+long Task::GetTask()
 {
 	return Milisec;
 }
@@ -56,12 +54,14 @@ Task * QueueTasks::GetAndDeleteTask()
 THREADPOOL::THREADPOOL(int N, void *ptrFunc)
 {
 	HANDLE temp;
-	Number = N;
-	hThreads = new std::queue<HANDLE>(); 
-	for (int i = 0; i < Number; i++)
+	hThreads = new std::queue<HANDLE>();
+    hNumberMutex = CreateMutex(NULL, false, NULL);
+    Number = 0; 
+	for (int i = 0; i < N; i++)
 	{
 		temp = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ptrFunc, NULL, CREATE_SUSPENDED, NULL);
 		hThreads->push(temp);
+		++Number;
 	}
 }
 
@@ -79,11 +79,34 @@ void THREADPOOL::SetQueueTasks(QueueTasks *queueTask)
 
 void THREADPOOL::ProcessTask()
 {
-	HANDLE temp;
-	for (int i = 0; i < Number; i++)
-	{
-		temp = hThreads->front();
-		ResumeThread(temp);
+    while (hThreads->front() != NULL)
+    {
+		ResumeThread(hThreads->front());
 		hThreads->pop();
-	}
+		--Number;
+    }
+}
+
+void THREADPOOL::AddThread(void * ptrFunc)
+{
+     WaitForSingleObject(hNumberMutex, INFINITE);
+     HANDLE temp = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ptrFunc, NULL, CREATE_SUSPENDED, NULL); 
+     hThreads->push(temp); 
+     ++Number;   
+     ReleaseMutex(hNumberMutex);
+}
+
+void THREADPOOL::RemoveThread()
+{
+     WaitForSingleObject(hNumberMutex, INFINITE);
+     --Number;
+     ReleaseMutex(hNumberMutex);
+}
+
+int THREADPOOL::GetNumber()
+{
+    WaitForSingleObject(hNumberMutex, INFINITE);
+    int temp = Number;
+    ReleaseMutex(hNumberMutex);
+    return temp;
 }

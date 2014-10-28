@@ -1,16 +1,16 @@
-#pragma once
+#include <windows.h>
 #include <queue>
 
 class Task
 {
 public:
 	Task();
-	Task(int K);
+	Task(long K);
 	~Task();
-	void SetTask(int K);
-	int GetTask();
+	void SetTask(long K);
+	long GetTask();
 private:
-	int Milisec;
+	long Milisec;
 };
 
 
@@ -34,9 +34,14 @@ public:
 	~THREADPOOL(void);
 	void SetQueueTasks(QueueTasks *queueTask);
 	void ProcessTask();
+	void AddThread(void *ptrFunc);
+	void RemoveThread();
+	int GetNumber();
+	
 	QueueTasks *QueueTask;
 private:
-	int Number;
+    HANDLE hNumberMutex;
+    int Number;
 	std::queue<HANDLE> *hThreads;
 
 };
