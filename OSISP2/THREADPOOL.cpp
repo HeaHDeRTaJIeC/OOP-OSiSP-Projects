@@ -1,4 +1,6 @@
+#include "stdafx.h"
 #include "THREADPOOL.h"
+
 
 
 Task::Task()
@@ -23,53 +25,75 @@ long Task::GetTask()
 
 QueueTasks::QueueTasks()
 {
-	std::queue<Task *> *QueueTask = new std::queue<Task *>();
-	hQueueMutex = CreateMutex(NULL, FALSE, NULL);
+	Count = 0;
+	QueueTask = new std::queue<Task *>();
+	hQueueMutex = CreateMutex(NULL, false, NULL);
 }
 
 QueueTasks::~QueueTasks()
 { 
 	CloseHandle(hQueueMutex);
+	while (QueueTask->front() != NULL)
+		QueueTask->pop();
 }
 
 void QueueTasks::AddTask(Task *task)
 {
-	QueueTask.push(task);
+	WaitForSingleObject(hQueueMutex, INFINITE);
+	++Count;
+	QueueTask->push(task);
+	ReleaseMutex(hQueueMutex);
 }
 
 Task * QueueTasks::GetAndDeleteTask()
 {
 	Task *temp;
-	if (QueueTask.empty())
+	WaitForSingleObject(hQueueMutex, INFINITE);
+	if (Count <= 0)
+	{
+		ReleaseMutex(hQueueMutex);
 		return NULL;
+	}
 	else
 	{
-		temp = QueueTask.front();
-		QueueTask.pop();
+		--Count;
+		temp = QueueTask->front();
+			QueueTask->pop();
+		ReleaseMutex(hQueueMutex);
 		return temp;
 	}
 }
 
+bool QueueTasks::IsEmpty()
+{
+	bool temp;
+	WaitForSingleObject(hQueueMutex, INFINITE);
+	Count == 0 ? temp = true : temp = false;
+	ReleaseMutex(hQueueMutex);
+	return temp;
+}
 
 THREADPOOL::THREADPOOL(int N, void *ptrFunc)
 {
 	HANDLE temp;
-	hThreads = new std::queue<HANDLE>();
+	hThreads = new HANDLE[N];
+	hThreadMutex = CreateMutex(NULL, false, NULL);
     hNumberMutex = CreateMutex(NULL, false, NULL);
     Number = 0; 
 	for (int i = 0; i < N; i++)
 	{
-		temp = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ptrFunc, NULL, CREATE_SUSPENDED, NULL);
-		hThreads->push(temp);
-		++Number;
+		temp = CreateThread(NULL, 100, (LPTHREAD_START_ROUTINE) ptrFunc, NULL, CREATE_SUSPENDED, NULL);
+		if (temp != NULL)
+	    {
+			hThreads[i] = temp;
+			++Number;
+        }
 	}
 }
 
 THREADPOOL::~THREADPOOL(void)
 {
-	while (!hThreads->empty())
-		hThreads->pop();
-	delete hThreads;
+	delete [] hThreads;
 }
 
 void THREADPOOL::SetQueueTasks(QueueTasks *queueTask)
@@ -79,19 +103,18 @@ void THREADPOOL::SetQueueTasks(QueueTasks *queueTask)
 
 void THREADPOOL::ProcessTask()
 {
-    while (hThreads->front() != NULL)
-    {
-		ResumeThread(hThreads->front());
-		hThreads->pop();
-		--Number;
-    }
+	WaitForSingleObject(hNumberMutex, INFINITE);
+	int temp = Number;
+	ReleaseMutex(hNumberMutex);
+	for (int i = 0; i < temp; i++)
+		ResumeThread(hThreads[i]);
+
 }
 
 void THREADPOOL::AddThread(void * ptrFunc)
 {
      WaitForSingleObject(hNumberMutex, INFINITE);
-     HANDLE temp = CreateThread(NULL, 0, (LPTHREAD_START_ROUTINE) ptrFunc, NULL, CREATE_SUSPENDED, NULL); 
-     hThreads->push(temp); 
+     HANDLE temp = CreateThread(NULL, 100, (LPTHREAD_START_ROUTINE) ptrFunc, NULL, 0, NULL);  
      ++Number;   
      ReleaseMutex(hNumberMutex);
 }
