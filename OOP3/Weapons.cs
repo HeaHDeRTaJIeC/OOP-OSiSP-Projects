@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 namespace OOP3
 {
     [Serializable]
-    abstract public class Weapons
+    abstract public class Weapons : Object
     {
         public string WeaponTitle { get; set; }
         public int Effectivedistance { get; set; }

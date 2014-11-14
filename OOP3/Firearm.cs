@@ -21,6 +21,23 @@ namespace OOP3
         Laser
     }
 
+    public enum TypeOfBullet
+    {
+        Usual,                  //Обычная
+        Shot,                   //Дробь
+        ArmorPiercing,          //Бронебойный
+        Incendiary,             //Зажигательный
+        Explosive,              //Разрывная
+    }
+
+    [Serializable]
+    public class Bullets
+    {
+        public Bullets() { }
+        public double Caliber { get; set; }
+        public TypeOfBullet Type { get; set; }
+    }
+
     [Serializable]
     abstract public class Firearm : Weapons
     {

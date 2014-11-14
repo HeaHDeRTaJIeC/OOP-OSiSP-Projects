@@ -8,11 +8,10 @@ using OOP3;
 namespace MainClassLibrary
 {
     [Serializable]
-    public class SniperRifles : Firearm
+    public class MachineGun : Firearm
     {
-        public SniperRifles() { Bullet = new Bullets(); }
-        public bool Silencer { get; set; }
-        public int Zoom { get; set; }
+        public MachineGun() { Bullet = new Bullets(); }
+        public int NumberOfBullets { get; set; }
         public Bullets Bullet { get; set; }
     }
 }

@@ -9,75 +9,48 @@ using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.Xml.Serialization;
 using System.IO;
+using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 
 namespace OOP3
 {
     public partial class Form1 : Form
     {
+        List<Type> ListOfTypes = new List<Type>();
         List<Weapons> list = new List<Weapons>();
+        TreeNode ChosenNode;
+
         public Form1()
         {
             InitializeComponent();
+
+            AddClass();
+            propertyBox.Enabled = false;
+            propertyButton.Enabled = false;
+            for (int i = 0; i < 4; i++)
+                propertyBox.Controls[i].Enabled = false;
+        }
+
+        private void AddClass()
+        {
+            var directory = new DirectoryInfo("ProjectDll");
+            ListOfTypes = directory.GetFiles("*.dll").
+                Select(x => Assembly.LoadFile(x.FullName).GetTypes().
+                    Where(y => y.IsSubclassOf(typeof(Weapons))))
+                    .Aggregate(new List<Type>(), (acc, x) => { acc.AddRange(x); return acc; });
         }
 
         private void button1_Click(object sender, EventArgs e)
         {
-            Shotguns shotgun = new Shotguns();
-            shotgun.Aim = TypeOfAim.Mechanical;
-            shotgun.Bullet.Caliber = 9.4;
-            shotgun.Bullet.Type = TypeOfBullet.Shot;
-            shotgun.BulletSpeed = 500;
-            shotgun.Effectivedistance = 50;
-            shotgun.ShotReload = TypeOfShotReload.Manual;
-            shotgun.NumberOfBullets = 7;
-            shotgun.ReloadMechanism = TypeOfReload.PrechargeReload;
-            shotgun.ShotReload = TypeOfShotReload.Manual;
-            shotgun.WeaponTitle = "ShotGun M11";
-
-            AutomaticRifles autoRifle = new AutomaticRifles();
-            autoRifle.Aim = TypeOfAim.Holographic;
-            autoRifle.Bayonet = true;
-            autoRifle.Bullet.Caliber = 7.62;
-            autoRifle.Bullet.Type = TypeOfBullet.Usual;
-            autoRifle.BulletSpeed = 900;
-            autoRifle.Effectivedistance = 800;
-            autoRifle.Grenade = TypeOfGrenade.Bursting;
-            autoRifle.Mode = FiringMode.Queues;
-            autoRifle.NBulletsPerShot = 1;
-            autoRifle.NumberOfBullets = 30;
-            autoRifle.ReloadMechanism = TypeOfReload.MagazineReload;
-            autoRifle.Silencer = false;
-            autoRifle.WeaponTitle = "AK-47";
-
-            SemiautomaticSniperRifles sniperRifle = new SemiautomaticSniperRifles();
-            sniperRifle.Aim = TypeOfAim.Optical;
-            sniperRifle.Bullet.Caliber = 11.2;
-            sniperRifle.Bullet.Type = TypeOfBullet.ArmorPiercing;
-            sniperRifle.BulletSpeed = 1200;
-            sniperRifle.Effectivedistance = 1500;
-            sniperRifle.FireMode = TypeOfShotReload.Manual;
-            sniperRifle.NumberOfBullets = 10;
-            sniperRifle.ReloadMechanism = TypeOfReload.MagazineReload;
-            sniperRifle.Silencer = true;
-            sniperRifle.Zoom = 16;
-            sniperRifle.WeaponTitle = "SVD";
-
-            SubmachineGun submachineGun = new SubmachineGun();
-            submachineGun.Aim = TypeOfAim.Laser;
-            submachineGun.Bullet.Caliber = 9;
-            submachineGun.Bullet.Type = TypeOfBullet.Incendiary;
-            submachineGun.Effectivedistance = 300;
-            submachineGun.Mode = FiringMode.NBulletsPerShot;
-            submachineGun.NBulletsPerShot = 3;
-            submachineGun.NumberOfBullets = 20;
-            submachineGun.Silencer = true;
-            submachineGun.WeaponTitle = "Glock";
-
-            list.Add((Weapons)submachineGun);
-            list.Add((Weapons)shotgun);
-            list.Add((Weapons)sniperRifle);
-            list.Add((Weapons)autoRifle);
+            label5.Text = "";
+            Weapons Item;
+            foreach (var type in ListOfTypes)
+            {
+                label5.Text += (type.Name + " ");
+                Item = (Weapons)Activator.CreateInstance(type);
+                Item.WeaponTitle = type.Name;
+                list.Add(Item);
+            }
         }
 
         private void button2_Click(object sender, EventArgs e)
@@ -85,7 +58,7 @@ namespace OOP3
             label1.Text = "";
             BinaryFormatter bf = new BinaryFormatter();
             FileStream fs = new FileStream("file.txt", FileMode.Create, FileAccess.Write, FileShare.ReadWrite);
-            foreach(var item in list)
+            foreach(Weapons item in list)
                 label1.Text += item.WeaponTitle;
             bf.Serialize(fs, list);
             fs.Close();
@@ -93,16 +66,13 @@ namespace OOP3
 
         private void button3_Click(object sender, EventArgs e)
         {
-            //Type[] extraTypes = new Type[]{typeof(Pistols), typeof(SubmachineGun), 
-            //    typeof(SniperRifles), typeof(SemiautomaticSniperRifles),
-            //    typeof(AutomaticRifles), typeof(Shotguns)};
             label1.Text = "";
             label2.Text = "";
             BinaryFormatter bf = new BinaryFormatter();
             FileStream fs = new FileStream("file.txt", FileMode.Open, FileAccess.Read, FileShare.Read);
             list = new List<Weapons>();
             list = (List<Weapons>)bf.Deserialize(fs);
-            foreach (var item in list)
+            foreach (Weapons item in list)
                 label2.Text += item.GetType().ToString();
             fs.Close();
         }
@@ -110,14 +80,14 @@ namespace OOP3
         private void button4_Click(object sender, EventArgs e)
         {
             label3.Text = "";
+            Type[] extraTypes = new Type[ListOfTypes.Count];
+            extraTypes = ListOfTypes.ToArray();
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Weapons>), extraTypes);
             using (FileStream fs = new FileStream("persons.xml", FileMode.OpenOrCreate))
             {
                 foreach (var item in list)
-                {
-                    XmlSerializer xmlSerializer = new XmlSerializer(item.GetType());
-                    xmlSerializer.Serialize(fs, item);
                     label3.Text += item.WeaponTitle;
-                }
+                xmlSerializer.Serialize(fs, list);
             }
         }
 
@@ -125,10 +95,9 @@ namespace OOP3
         {
             label4.Text = "";
             list = new List<Weapons>();
-            //Type[] extraTypes = new Type[]{typeof(Pistols), typeof(SubmachineGun), 
-            //    typeof(SniperRifles), typeof(SemiautomaticSniperRifles),
-            //    typeof(AutomaticRifles), typeof(Shotguns)};
-            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Weapons>));
+            Type[] extraTypes = new Type[ListOfTypes.Count];
+            extraTypes = ListOfTypes.ToArray();
+            XmlSerializer xmlSerializer = new XmlSerializer(typeof(List<Weapons>), extraTypes);
             using (FileStream fs = new FileStream("persons.xml", FileMode.OpenOrCreate))
             {
                 list = (List<Weapons>)xmlSerializer.Deserialize(fs);
@@ -137,5 +106,119 @@ namespace OOP3
             foreach (var item in list)
                 label4.Text += item.GetType().ToString();
         }
+
+        private void button6_Click(object sender, EventArgs e)
+        {
+            treeView1.Nodes.Add(TreeBuilder.GetTree(list));
+        }
+
+        private void treeView1_AfterSelect(object sender, TreeViewEventArgs e)
+        {
+            DisableControls();
+            TreeNodeTag nodeTag = e.Node.Tag as TreeNodeTag; 
+
+            if (nodeTag != null)
+                if (nodeTag.NodeType.IsValueType || nodeTag.Value is String)
+                    if (nodeTag.PropertiesInfo.CanWrite)
+                    {
+                        ChosenNode = e.Node;
+                        propertyBox.Enabled = true;
+                        propertyButton.Enabled = true;
+                        if (nodeTag.Value is int)
+                        {
+                            numericUpDown.Value = (int)nodeTag.Value;
+                            numericUpDown.Enabled = true;
+                        }
+                        else if (nodeTag.Value is String)
+                        {
+                            textBox.Text = nodeTag.Value.ToString();
+                            textBox.Enabled = true;
+                        }
+                        else if (nodeTag.Value is bool)
+                        {
+                            if ((bool)nodeTag.Value)
+                                boolComboBox.SelectedIndex = 0;
+                            else
+                                boolComboBox.SelectedIndex = 1;
+                            boolComboBox.Enabled = true;
+                        }
+                        else
+                        {
+                            foreach (var item in Enum.GetValues(nodeTag.Value.GetType()))
+                            {
+                                enumComboBox.Items.Add(item);
+                                if (item.Equals(nodeTag.Value))
+                                    enumComboBox.SelectedIndex = enumComboBox.Items.IndexOf(item);
+                            }
+                            enumComboBox.Enabled = true;
+                        }
+                    }
+        }
+
+        void DisableControls()
+        {
+            propertyBox.Enabled = false;
+            propertyButton.Enabled = false;
+            boolComboBox.Enabled = false;
+            enumComboBox.Enabled = false;
+            enumComboBox.Items.Clear();
+            numericUpDown.Enabled = false;
+            textBox.Enabled = false;
+            textBox.Clear();
+
+        }
+
+        private void propertyButton_Click(object sender, EventArgs e)
+        {
+            if (ChosenNode != null)
+            {
+                TreeNodeTag nodeTag = (TreeNodeTag)ChosenNode.Tag;
+                TreeNodeTag parentTag = (TreeNodeTag)ChosenNode.Parent.Tag;
+                ChosenNode.Name = nodeTag.PropertiesInfo.Name + " = ";
+                if (nodeTag.Value is int)
+                {
+                    ChosenNode.Name += numericUpDown.Value.ToString();
+                    nodeTag.PropertiesInfo.SetValue(parentTag.Value, (int) numericUpDown.Value);
+                    nodeTag.Value = numericUpDown.Value;
+                }
+                else if (nodeTag.Value is String)
+                {
+                    ChosenNode.Name += textBox.Text;
+                    nodeTag.PropertiesInfo.SetValue(parentTag.Value, textBox.Text);
+                    nodeTag.Value = textBox.Text;
+                }
+                else if (nodeTag.Value is bool)
+                {
+                    if (boolComboBox.SelectedIndex == 0)
+                    {
+                        ChosenNode.Name += "True";
+                        nodeTag.PropertiesInfo.SetValue(parentTag.Value, true);
+                        nodeTag.Value = true;
+                    }
+                    else
+                    {
+                        ChosenNode.Name += "False";
+                        nodeTag.PropertiesInfo.SetValue(parentTag.Value, false);
+                        nodeTag.Value = false;
+                    }
+                }
+                else
+                {
+                    var item = enumComboBox.Items[enumComboBox.SelectedIndex];
+                    ChosenNode.Name += item.ToString();
+                    nodeTag.PropertiesInfo.SetValue(parentTag.Value, item);
+                    nodeTag.Value = item;
+                }
+            }
+            DisableControls();
+            RefreshTree();
+        }
+
+        private void RefreshTree()
+        {
+            treeView1.Nodes.Clear();
+            treeView1.Nodes.Add(TreeBuilder.GetTree(list));
+        }
+
     }
 }
