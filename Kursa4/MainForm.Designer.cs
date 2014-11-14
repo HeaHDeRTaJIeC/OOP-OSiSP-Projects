@@ -27,25 +27,16 @@ partial class MainForm
     /// </summary>
     private void InitializeComponent()
     {
-            this.button1 = new System.Windows.Forms.Button();
             this.menuStrip1 = new System.Windows.Forms.MenuStrip();
             this.gameToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.newToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.exitToolStripMenuItem = new System.Windows.Forms.ToolStripMenuItem();
             this.pictureBox1 = new System.Windows.Forms.PictureBox();
+            this.skip1 = new System.Windows.Forms.Button();
+            this.skip2 = new System.Windows.Forms.Button();
             this.menuStrip1.SuspendLayout();
             ((System.ComponentModel.ISupportInitialize)(this.pictureBox1)).BeginInit();
             this.SuspendLayout();
-            // 
-            // button1
-            // 
-            this.button1.Location = new System.Drawing.Point(12, 42);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(75, 23);
-            this.button1.TabIndex = 0;
-            this.button1.Text = "button1";
-            this.button1.UseVisualStyleBackColor = true;
-            this.button1.Click += new System.EventHandler(this.button1_Click);
             // 
             // menuStrip1
             // 
@@ -91,13 +82,35 @@ partial class MainForm
             this.pictureBox1.TabIndex = 3;
             this.pictureBox1.TabStop = false;
             // 
+            // skip1
+            // 
+            this.skip1.Location = new System.Drawing.Point(92, 511);
+            this.skip1.Name = "skip1";
+            this.skip1.Size = new System.Drawing.Size(75, 23);
+            this.skip1.TabIndex = 4;
+            this.skip1.Text = "Cancel";
+            this.skip1.UseVisualStyleBackColor = true;
+            this.skip1.Click += new System.EventHandler(this.skip1_Click);
+            // 
+            // skip2
+            // 
+            this.skip2.Location = new System.Drawing.Point(92, 184);
+            this.skip2.Name = "skip2";
+            this.skip2.Size = new System.Drawing.Size(75, 23);
+            this.skip2.TabIndex = 5;
+            this.skip2.Text = "Cancel";
+            this.skip2.UseVisualStyleBackColor = true;
+            this.skip2.Visible = false;
+            this.skip2.Click += new System.EventHandler(this.skip2_Click);
+            // 
             // MainForm
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.ClientSize = new System.Drawing.Size(1000, 688);
+            this.Controls.Add(this.skip2);
+            this.Controls.Add(this.skip1);
             this.Controls.Add(this.pictureBox1);
-            this.Controls.Add(this.button1);
             this.Controls.Add(this.menuStrip1);
             this.MainMenuStrip = this.menuStrip1;
             this.MaximumSize = new System.Drawing.Size(1016, 726);
@@ -115,12 +128,13 @@ partial class MainForm
 
     #endregion
 
-    private System.Windows.Forms.Button button1;
     private System.Windows.Forms.MenuStrip menuStrip1;
     private System.Windows.Forms.ToolStripMenuItem gameToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem newToolStripMenuItem;
     private System.Windows.Forms.ToolStripMenuItem exitToolStripMenuItem;
     private System.Windows.Forms.PictureBox pictureBox1;
+    private System.Windows.Forms.Button skip1;
+    private System.Windows.Forms.Button skip2;
 
 }
 
