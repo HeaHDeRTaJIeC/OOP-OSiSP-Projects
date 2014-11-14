@@ -12,6 +12,10 @@ using System.IO;
 using System.Reflection;
 using System.Runtime.Serialization.Formatters.Binary;
 
+/*сделать произволььную сериализацию
+  биндер на двоичную
+  сделать меню добавления объекта класса*/
+
 namespace OOP3
 {
     public partial class Form1 : Form
@@ -38,6 +42,25 @@ namespace OOP3
                 Select(x => Assembly.LoadFile(x.FullName).GetTypes().
                     Where(y => y.IsSubclassOf(typeof(Weapons))))
                     .Aggregate(new List<Type>(), (acc, x) => { acc.AddRange(x); return acc; });
+            foreach (var type in ListOfTypes)
+            {
+                var MenuItem = new ToolStripButton
+                {
+                    Tag = type,
+                    Name = type.Name,
+                    Text = type.Name
+                };
+                MenuItem.Click += WeaponClick;
+                addToolStripMenuItem.DropDownItems.Add(MenuItem);
+            }
+        }
+
+        private void WeaponClick(object sender, EventArgs e)
+        {
+            Weapons Item = (Weapons)Activator.CreateInstance((Type)((ToolStripItem)sender).Tag);
+            Item.WeaponTitle = Item.GetType().Name;
+            list.Add(Item);
+            RefreshTree();
         }
 
         private void button1_Click(object sender, EventArgs e)
@@ -142,6 +165,11 @@ namespace OOP3
                                 boolComboBox.SelectedIndex = 1;
                             boolComboBox.Enabled = true;
                         }
+                        else if (nodeTag.Value is double)
+                        {
+                            doubleBox.Text = nodeTag.Value.ToString();
+                            doubleBox.Enabled = true;
+                        }
                         else
                         {
                             foreach (var item in Enum.GetValues(nodeTag.Value.GetType()))
@@ -160,6 +188,8 @@ namespace OOP3
             propertyBox.Enabled = false;
             propertyButton.Enabled = false;
             boolComboBox.Enabled = false;
+            doubleBox.Enabled = false;
+            doubleBox.Clear();
             enumComboBox.Enabled = false;
             enumComboBox.Items.Clear();
             numericUpDown.Enabled = false;
@@ -201,6 +231,22 @@ namespace OOP3
                         nodeTag.PropertiesInfo.SetValue(parentTag.Value, false);
                         nodeTag.Value = false;
                     }
+                }
+                else if (nodeTag.Value is double)
+                {
+                    double temp;
+                    try
+                    {
+                        temp = double.Parse(doubleBox.Text);
+                    }
+                    catch
+                    {
+                        MessageBox.Show("Incorrect value");
+                        return;
+                    }
+                    ChosenNode.Name += temp.ToString();
+                    nodeTag.PropertiesInfo.SetValue(parentTag.Value, temp);
+                    nodeTag.Value = temp;
                 }
                 else
                 {
