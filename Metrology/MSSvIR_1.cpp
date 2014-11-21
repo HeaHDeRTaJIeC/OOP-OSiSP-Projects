@@ -1,4 +1,3 @@
-
 #include "stdafx.h"
 #include <iostream>
 #include <fstream>
@@ -6,8 +5,9 @@
 #include <sstream>
 #include <iterator>
 #include <vector>
-
 #include <regex>
+
+//trololo
 
 using namespace std;
 
@@ -158,7 +158,7 @@ int _tmain(int argc, _TCHAR* argv[])
 		while (regex_search(s, m, e)) {
 			for (auto x : m)
 				cout << x << "|" << endl;
-			cout << "Var: " << m[5] << endl;// " string: " << s << endl;
+			cout << "Var: " << m[5] << endl;
 			s = m.suffix().str();
 		}
 	}
