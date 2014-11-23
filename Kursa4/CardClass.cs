@@ -25,8 +25,7 @@ namespace MainClass
 
     class CardClass
     {
-        public const string LocalPath = @"D:\Completed Programs\5 Semestr Kursa4\5Sem_Kursa4\5Sem_Kursa4\Resources\";
-
+    
         public CardClass(string name, string nation, int numberToLoad, int value, bool flag = false)
         {
             Name = name;
@@ -57,6 +56,11 @@ namespace MainClass
                 loadBackImage();
         }
 
+        public static void SetLocalPath(string Path)
+        {
+            LocalPath = Path + "\\Resources\\";
+        }
+
         public delegate void MoveCard(CardClass Item);
 
         public event MoveCard onCardClick;
@@ -66,6 +70,7 @@ namespace MainClass
         public int Value { get; private set; }
         public string Nation { get; private set; }
         public CardOwner PlayerOwner { get; set; }
+        public static string LocalPath { get; private set; }
 
         private Bitmap makeFrontImage()
         {
