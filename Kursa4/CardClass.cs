@@ -1,12 +1,10 @@
 ﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
+using System.Diagnostics;
 using System.Drawing;
+using System.Globalization;
+using System.Windows.Forms;
 
-namespace MainClass
+namespace _5Sem_Kursa4
 {
     public enum CardOwner
     {
@@ -26,12 +24,12 @@ namespace MainClass
     class CardClass
     {
     
-        public CardClass(string name, string nation, int numberToLoad, int value, bool flag = false)
+        public CardClass(string name, string nation, int numberToLoad, int value)
         {
-            Name = name;
+            this.name = name;
             Value = value;
             Nation = nation;
-            NumberToLoad = numberToLoad;
+            this.numberToLoad = numberToLoad;
             Status = CardStatus.NotInGame;
             PlayerOwner = CardOwner.None;
             ImageBox = new PictureBox();
@@ -41,29 +39,29 @@ namespace MainClass
             ImageBox.MouseClick += ImageMouseClick;
         }
 
-        public void setImagePosition(int x, int y)
+        public void SetImagePosition(int x, int y)
         {
             ImageBox.Top = y;
             ImageBox.Left = x;
         }
 
-        public void setVisible(bool b)
+        public void SetVisible(bool b)
         {
             Visible = b;
             if (Visible)
-                loadFrontImage();
+                LoadFrontImage();
             else
-                loadBackImage();
+                LoadBackImage();
         }
 
-        public static void SetLocalPath(string Path)
+        public static void SetLocalPath(string path)
         {
-            LocalPath = Path + "\\Resources\\";
+            LocalPath = path + "\\Resources\\";
         }
 
-        public delegate void MoveCard(CardClass Item);
+        public delegate void MoveCard(CardClass item);
 
-        public event MoveCard onCardClick;
+        public event MoveCard OnCardClick;
 
         public PictureBox ImageBox;
         public CardStatus Status;
@@ -72,9 +70,9 @@ namespace MainClass
         public CardOwner PlayerOwner { get; set; }
         public static string LocalPath { get; private set; }
 
-        private Bitmap makeFrontImage()
+        private Bitmap MakeFrontImage()
         {
-            Bitmap bitmapPlayer = new Bitmap(LocalPath + "Players\\" + NumberToLoad.ToString() + ".png");
+            Bitmap bitmapPlayer = new Bitmap(LocalPath + "Players\\" + numberToLoad + ".png");
             Bitmap bitmapFlag = new Bitmap(LocalPath + "Flags\\" + Nation + ".png");
             Bitmap finalBitmap = new Bitmap(LocalPath + "CardFon.png");
             Font font = new Font("Arial", 22);
@@ -83,18 +81,18 @@ namespace MainClass
 
             graph.DrawImage(bitmapPlayer, new Rectangle(7, 40, 120, 120));
             graph.DrawImage(bitmapFlag, new Rectangle(70, 5, 60, 37));
-            graph.DrawString(Value.ToString(), font, Brushes.Gold, new Point(5, 5));
-            graph.DrawString(Name, new Font("Arial", 10), Brushes.Gold, new Rectangle(8, 162, 100, 25));
+            graph.DrawString(Value.ToString(CultureInfo.InvariantCulture), font, Brushes.Gold, new Point(5, 5));
+            graph.DrawString(name, new Font("Arial", 10), Brushes.Gold, new Rectangle(8, 162, 100, 25));
 
             return finalBitmap;
         }
 
-        private void loadFrontImage()
+        private void LoadFrontImage()
         {
-            ImageBox.Image = makeFrontImage();
+            ImageBox.Image = MakeFrontImage();
         }
 
-        private void loadBackImage()
+        private void LoadBackImage()
         {
             ImageBox.Load(LocalPath + "CardBack.png");
             Color temp = ColorTranslator.FromOle(0x54FF70);
@@ -108,13 +106,14 @@ namespace MainClass
             switch (Status)
             {
                 case CardStatus.Player:
-                    onCardClick(this);
+                    Debug.Assert(OnCardClick != null, "OnCardClick != null");
+                    OnCardClick(this);
                     break;
             }
             
         }
 
-        private int NumberToLoad;
-        private string Name;
+        private readonly int numberToLoad;
+        private readonly string name;
     }
 }

@@ -1,38 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
-using System.Windows.Forms;
-using System.Threading;
+using System.Diagnostics;
+using System.Globalization;
 using System.IO;
-using MainClass;
-
+using System.Windows.Forms;
 
 namespace _5Sem_Kursa4
 {
     public partial class MainForm : Form
     {
-        int Counter;
-        int CardsChosen = 0;
-        int Round;
-
-        bool FirstPlayerBlocked = false;
-        bool SecondPlayerBlocked = false;
-        CardClass[] Cards = new CardClass[150];
-        CardClass[] CardsOnTable = new CardClass[4];
-        List<CardClass> FirstPlayerGameCards = new List<CardClass>();
-        List<CardClass> SecondPlayerGameCards = new List<CardClass>();
-        List<CardClass> FirstPlayerOutCards = new List<CardClass>();
-        List<CardClass> SecondPlayerOutCards = new List<CardClass>();
-        List<CardClass> RandomGameCards = new List<CardClass>();
-
-        Players Turn = Players.First;
-        Players RoundWinner;
-
         public enum Players
         {
             First,
@@ -40,22 +16,39 @@ namespace _5Sem_Kursa4
             None
         }
 
+        private int cardsChosen;
+        private int counter;
+        private int round;
+        private readonly Random rand = new Random();
+        private Players roundWinner;
+        private bool firstPlayerBlocked;
+        private bool secondPlayerBlocked;
+        private Players turn = Players.First;
+        short[] indexArray = new short[150];
+        private readonly CardClass[] cards = new CardClass[150];
+        private readonly CardClass[] cardsOnTable = new CardClass[4];
+        private readonly List<CardClass> firstPlayerGameCards = new List<CardClass>();
+        private readonly List<CardClass> firstPlayerOutCards = new List<CardClass>();
+        private readonly List<CardClass> randomGameCards = new List<CardClass>();
+        private readonly List<CardClass> secondPlayerGameCards = new List<CardClass>();
+        private readonly List<CardClass> secondPlayerOutCards = new List<CardClass>();
+
         public MainForm()
         {
             InitializeComponent();
-            CardClass.SetLocalPath(System.IO.Path.GetDirectoryName(Application.ExecutablePath));
+            CardClass.SetLocalPath(Path.GetDirectoryName(Application.ExecutablePath));
         }
 
         private void MainForm_Load(object sender, EventArgs e)
         {
-            StreamReader str = new StreamReader(CardClass.LocalPath + "info.txt");
-            string line;
-            for (int i = 0; i < 150; i++)
+            var str = new StreamReader(CardClass.LocalPath + "info.txt");
+            for (var i = 0; i < 150; i++)
             {
-                line = str.ReadLine();
-                string[] data = line.Split(';');
-                int value = 0;
-                string name = data[0];
+                var line = str.ReadLine();
+                Debug.Assert(line != null, "line != null");
+                var data = line.Split(';');
+                var value = 0;
+                var name = data[0];
                 try
                 {
                     value = int.Parse(data[1]);
@@ -64,10 +57,11 @@ namespace _5Sem_Kursa4
                 {
                     MessageBox.Show("Error parse");
                 }
-                string nation = data[2];
-                Cards[i] = new CardClass(name, nation, i + 1, value, false);
-                Cards[i].onCardClick += GetNewCard;
-                Cards[i].onCardClick += MoveCurrentCard;
+                var nation = data[2];
+                cards[i] = new CardClass(name, nation, i + 1, value);
+                cards[i].OnCardClick += GetNewCard;
+                cards[i].OnCardClick += MoveCurrentCard;
+                Controls.Add(cards[i].ImageBox);
             }
             skip1.Enabled = false;
             skip2.Enabled = false;
@@ -81,75 +75,72 @@ namespace _5Sem_Kursa4
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
-            FirstPlayerGameCards.Clear();
-            SecondPlayerGameCards.Clear();
-            FirstPlayerOutCards.Clear();
-            SecondPlayerOutCards.Clear();
-            CardClass CardItem;
-            Counter = 0;
-            Round = 0;
+            firstPlayerGameCards.Clear();
+            secondPlayerGameCards.Clear();
+            firstPlayerOutCards.Clear();
+            secondPlayerOutCards.Clear();
+            indexArray = MakeRandom();
+            counter = 0;
+            round = 0;
             for (int i = 0; i < 150; i++)
-                Controls.Add(Cards[i].ImageBox);
+                cards[i].SetImagePosition(-200, -200);
             for (int i = 0; i < 10; i++)
             {
-                CardItem = Cards[Counter];
-                if (i % 2 == 0)
-                    FirstPlayerGameCards.Add(CardItem);
+                var cardItem = cards[indexArray[counter]];
+                if (i%2 == 0)
+                    firstPlayerGameCards.Add(cardItem);
                 else
-                    SecondPlayerGameCards.Add(CardItem);
-                ++Counter;
+                    secondPlayerGameCards.Add(cardItem);
+                ++counter;
             }
-            int Count = 0;
-            foreach (CardClass Item in FirstPlayerGameCards)
+            var count = 0;
+            foreach (var item in firstPlayerGameCards)
             {
-                Item.setImagePosition(182 + Count * 128, 504);
-                Item.setVisible(false);
-                Controls.Add(Item.ImageBox);
-                Item.ImageBox.BringToFront();
-                Item.Status = CardStatus.Player;
-                Item.PlayerOwner = CardOwner.First;
-                ++Count;
+                item.SetImagePosition(182 + count*128, 504);
+                item.SetVisible(false);
+                item.ImageBox.BringToFront();
+                item.Status = CardStatus.Player;
+                item.PlayerOwner = CardOwner.First;
+                ++count;
             }
 
-            Count = 0;
-            foreach (CardClass Item in SecondPlayerGameCards)
+            count = 0;
+            foreach (var item in secondPlayerGameCards)
             {
-                Item.setImagePosition(182 + Count * 128, 32);
-                Item.setVisible(false);
-                Controls.Add(Item.ImageBox);
-                Item.ImageBox.BringToFront();
-                Item.Status = CardStatus.Player;
-                Item.PlayerOwner = CardOwner.Second;
-                ++Count;
+                item.SetImagePosition(182 + count*128, 32);
+                item.SetVisible(false);
+                item.ImageBox.BringToFront();
+                item.Status = CardStatus.Player;
+                item.PlayerOwner = CardOwner.Second;
+                ++count;
             }
 
             skip1.Enabled = false;
             skip2.Enabled = false;
             skip2.Visible = false;
             skip1.Visible = true;
-            Turn = Players.Second;
-            Turn = ChangeTurn(Turn);
+            turn = Players.Second;
+            turn = ChangeTurn(turn);
             RoundLabel.Visible = true;
             TimeLabel.Visible = true;
             NumberOutCards1Label.Visible = true;
             NumberOutCards2Label.Visible = true;
-            RoundLabel.Text = "Round " + (Round + 1).ToString();
-            TimeLabel.Text = "Time\n" + (Round * 5).ToString() + ":00";
-            NumberOutCards1Label.Text = FirstPlayerOutCards.Count.ToString();
-            NumberOutCards2Label.Text = SecondPlayerOutCards.Count.ToString();
+            RoundLabel.Text = "Round " + (round + 1);
+            TimeLabel.Text = "Time\n" + (round*5) + ":00";
+            NumberOutCards1Label.Text = firstPlayerOutCards.Count.ToString(CultureInfo.InvariantCulture);
+            NumberOutCards2Label.Text = secondPlayerOutCards.Count.ToString(CultureInfo.InvariantCulture);
         }
 
         private void skip1_Click(object sender, EventArgs e)
         {
-            Turn = ChangeTurn(Turn);
+            turn = ChangeTurn(turn);
             CompareCards();
         }
 
         private void skip2_Click(object sender, EventArgs e)
         {
-            Turn = ChangeTurn(Turn);
+            turn = ChangeTurn(turn);
             CompareCards();
         }
     }
 }
-
