@@ -103,6 +103,11 @@ namespace _5Sem_Kursa4
 
         private void ImageMouseClick(object sender, EventArgs e)
         {
+            CardClicked();
+        }
+
+        public void CardClicked()
+        {
             switch (Status)
             {
                 case CardStatus.Player:
@@ -110,7 +115,6 @@ namespace _5Sem_Kursa4
                     OnCardClick(this);
                     break;
             }
-            
         }
 
         private readonly int numberToLoad;

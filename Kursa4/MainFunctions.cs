@@ -5,42 +5,51 @@ namespace _5Sem_Kursa4
 {
     public partial class MainForm
     {
-        Players ChangeTurn(Players item)
+        private Players ChangeTurn(Players item)
         {
-            foreach (var card in firstPlayerGameCards)
-                card.SetVisible(false);
-            foreach (var card in secondPlayerGameCards)
-                card.SetVisible(false);
-            skip1.Visible = false;
-            skip2.Visible = false;
-
-            if (item == Players.First)
+            if (opponent == Opponents.Player)
             {
-                MessageBox.Show("Player 2 turn", "Football");
+                foreach (var card in firstPlayerGameCards)
+                    card.SetVisible(false);
                 foreach (var card in secondPlayerGameCards)
-                    card.SetVisible(true);
-                skip2.Visible = true;
-                item = Players.Second;
+                    card.SetVisible(false);
+                skip1.Visible = false;
+                skip2.Visible = false;
+
+                if (item == Players.First)
+                {
+                    MessageBox.Show("Player 2 turn", "Football");
+                    foreach (var card in secondPlayerGameCards)
+                        card.SetVisible(true);
+                    skip2.Visible = true;
+                    item = Players.Second;
+                }
+                else
+                {
+                    MessageBox.Show("Player 1 turn", "Football");
+                    foreach (var card in firstPlayerGameCards)
+                        card.SetVisible(true);
+                    skip1.Visible = true;
+                    item = Players.First;
+
+                }
             }
             else
             {
-                MessageBox.Show("Player 1 turn", "Football");
-                foreach (var card in firstPlayerGameCards)
-                    card.SetVisible(true);
-                skip1.Visible = true;
-                item = Players.First;
-
+                item = item == Players.First ? Players.Second : Players.First;
             }
             return item;
         }
 
-        void MoveCurrentCard(CardClass item)
+        private void MoveCurrentCard(CardClass item)
         {
             if ((turn == Players.First && item.PlayerOwner == CardOwner.First) ||
                 (turn == Players.Second && item.PlayerOwner == CardOwner.Second))
             {
                 if ((item.PlayerOwner == CardOwner.First && !firstPlayerBlocked) ||
-                    (item.PlayerOwner == CardOwner.Second && !secondPlayerBlocked))
+                    (item.PlayerOwner == CardOwner.Second && 
+                    ((!secondPlayerBlocked && opponent == Opponents.Player) ||
+                    (secondPlayerBlocked && opponent == Opponents.Bot))))
                 {
                     int tableIndex;
                     if (item.PlayerOwner == CardOwner.First)
@@ -71,30 +80,35 @@ namespace _5Sem_Kursa4
             }
         }
 
-        void GetNewCard(CardClass item)
+        private void GetNewCard(CardClass item)
         {
             if ((turn == Players.First && item.PlayerOwner == CardOwner.First) ||
                 (turn == Players.Second && item.PlayerOwner == CardOwner.Second))
             {
                 if ((item.PlayerOwner == CardOwner.First && !firstPlayerBlocked) ||
-                    (item.PlayerOwner == CardOwner.Second && !secondPlayerBlocked))
+                    (item.PlayerOwner == CardOwner.Second && 
+                    ((!secondPlayerBlocked && opponent == Opponents.Player) ||
+                    (secondPlayerBlocked && opponent == Opponents.Bot))))
                 {
-                    var index = item.PlayerOwner == CardOwner.First ? firstPlayerGameCards.IndexOf(item) : secondPlayerGameCards.IndexOf(item);
+                    var index = item.PlayerOwner == CardOwner.First
+                        ? firstPlayerGameCards.IndexOf(item)
+                        : secondPlayerGameCards.IndexOf(item);
 
                     if (item.PlayerOwner == CardOwner.Second)
                     {
-                        cards[indexArray[counter]].SetImagePosition(182 + index * 128, 32);
+                        cards[indexArray[counter]].SetImagePosition(182 + index*128, 32);
                         cards[indexArray[counter]].PlayerOwner = CardOwner.Second;
                         secondPlayerGameCards[index] = cards[indexArray[counter]];
+                        cards[indexArray[counter]].SetVisible(opponent == Opponents.Player);
                     }
                     else
                     {
-                        cards[indexArray[counter]].SetImagePosition(182 + index * 128, 504);
+                        cards[indexArray[counter]].SetImagePosition(182 + index*128, 504);
                         cards[indexArray[counter]].PlayerOwner = CardOwner.First;
                         firstPlayerGameCards[index] = cards[indexArray[counter]];
+                        cards[indexArray[counter]].SetVisible(true);
                     }
 
-                    cards[indexArray[counter]].SetVisible(true);
                     cards[indexArray[counter]].ImageBox.BringToFront();
                     cards[indexArray[counter]].Status = CardStatus.Player;
                     ++counter;
@@ -102,7 +116,7 @@ namespace _5Sem_Kursa4
             }
         }
 
-        void CompareCards()
+        private void CompareCards()
         {
             switch (cardsChosen)
             {
@@ -185,7 +199,7 @@ namespace _5Sem_Kursa4
             }
         }
 
-        void RandomCards()
+        private void RandomCards()
         {
             MessageBox.Show("Penalties", "Football");
 
@@ -278,7 +292,7 @@ namespace _5Sem_Kursa4
                     cardsOnTable[i].ImageBox.Visible = true;
         }
 
-        bool CheckOtherPlayerCards(string nation, Players turn)
+        private bool CheckOtherPlayerCards(string nation, Players turn)
         {
             bool result = false;
             if (turn == Players.First)
@@ -297,7 +311,7 @@ namespace _5Sem_Kursa4
             return result;
         }
 
-        Players CompareCardsOnTable()
+        private Players CompareCardsOnTable()
         {
             Players result;
             int player1 = cardsOnTable[1].Value;
@@ -319,7 +333,7 @@ namespace _5Sem_Kursa4
             return result;
         }
 
-        void StartNewRound()
+        private void StartNewRound()
         {
             for (int i = 0; i < 4; i++)
                 if (cardsOnTable[i] != null)
@@ -344,7 +358,8 @@ namespace _5Sem_Kursa4
                 }
             cardsChosen = 0;
             firstPlayerBlocked = false;
-            secondPlayerBlocked = false;
+            if (opponent == Opponents.Player)
+                secondPlayerBlocked = false;
             skip1.Enabled = false;
             skip2.Enabled = false;
             if (roundWinner != turn)
@@ -359,9 +374,11 @@ namespace _5Sem_Kursa4
                 MessageBox.Show("Final round", "Football"); //end routine
                 FinalGame();
             }
+            else
+                ActivateBot(null);
         }
 
-        void FinalGame()
+        private void FinalGame()
         {
             skip1.Visible = false;
             skip2.Visible = false;
@@ -427,19 +444,19 @@ namespace _5Sem_Kursa4
             else
             {
                 if (MessageBox.Show("Exit game?", "Football", MessageBoxButtons.YesNo) == DialogResult.Yes)
-                    Application.Exit(null);
+                    Application.Exit();
             }
             
 
 
         }
 
-        int Compare(CardClass x, CardClass y)
+        private int Compare(CardClass x, CardClass y)
         {
-            return x.Value.CompareTo(y.Value);
+            return y.Value.CompareTo(x.Value);
         }
 
-        short[] MakeRandom()
+        private short[] MakeRandom()
         { 
             short[] s = new short[150];
             const int number = 5;
@@ -471,5 +488,89 @@ namespace _5Sem_Kursa4
             return s;
         }
 
+        private void Bot()
+        {
+            CardClass item = secondPlayerGameCards[0];
+            if (cardsChosen == 0)
+                item = secondPlayerGameCards[rand.Next(5)];
+            else if (cardsChosen == 1)
+            {
+                int value = 0;
+                int index = -1;
+                foreach (var card in secondPlayerGameCards)
+                    if (value < card.Value)
+                    {
+                        value = card.Value;
+                        index = secondPlayerGameCards.IndexOf(card);
+                    }
+                if (index != -1)
+                    item = secondPlayerGameCards[index];
+                else
+                {
+                    value = 100;
+                    index = -1;
+                    foreach (var card in secondPlayerGameCards)
+                        if (cardsOnTable[1].Nation == card.Nation)
+                            if (card.Value < value)
+                                index = secondPlayerGameCards.IndexOf(card);
+                    if (index != -1)
+                        item = secondPlayerGameCards[index];
+                    else
+                    {
+                        value = 100;
+                        index = -1;
+                        foreach (var card in secondPlayerGameCards)
+                            if (card.Value < value)
+                            {
+                                value = card.Value;
+                                index = secondPlayerGameCards.IndexOf(card);
+                            }
+                        item = secondPlayerGameCards[index];
+                    }
+                }
+            }
+            else if (cardsChosen == 2)
+            {
+                int value = 0;
+                int index = -1;
+                foreach (var card in secondPlayerGameCards)
+                {
+                    if (card.Nation == cardsOnTable[2].Nation)
+                        if (card.Value > value)
+                        {
+                            value = card.Value;
+                            index = secondPlayerGameCards.IndexOf(card);
+                        }
+                }
+                if (index != -1)
+                    item = secondPlayerGameCards[index];
+            }
+            else if (cardsChosen == 3)
+            {
+                int value = 0;
+                int index = -1;
+                foreach (var card in secondPlayerGameCards)
+                {
+                    if (card.Nation == cardsOnTable[2].Nation)
+                        if (card.Value > value)
+                        {
+                            value = card.Value;
+                            index = secondPlayerGameCards.IndexOf(card);
+                        }
+                }
+                if (index != -1)
+                    item = secondPlayerGameCards[index];
+            }
+
+
+            item.SetVisible(true);
+            item.CardClicked();
+        }
+
+        private void ActivateBot(CardClass cardClass)
+        {
+            if (turn == Players.Second && opponent == Opponents.Bot && round < NumberOfRounds)
+                Bot();
+        }
     }
 }

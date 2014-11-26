@@ -9,6 +9,12 @@ namespace _5Sem_Kursa4
 {
     public partial class MainForm : Form
     {
+        public enum Opponents
+        {
+            Bot,
+            Player
+        }
+
         public enum Players
         {
             First,
@@ -16,6 +22,8 @@ namespace _5Sem_Kursa4
             None
         }
 
+        private Opponents opponent;
+        private const int NumberOfRounds = 9;
         private int cardsChosen;
         private int counter;
         private int round;
@@ -61,6 +69,7 @@ namespace _5Sem_Kursa4
                 cards[i] = new CardClass(name, nation, i + 1, value);
                 cards[i].OnCardClick += GetNewCard;
                 cards[i].OnCardClick += MoveCurrentCard;
+                cards[i].OnCardClick += ActivateBot;
                 Controls.Add(cards[i].ImageBox);
             }
             skip1.Enabled = false;
@@ -75,6 +84,7 @@ namespace _5Sem_Kursa4
 
         private void newToolStripMenuItem_Click(object sender, EventArgs e)
         {
+            opponent = MessageBox.Show("Play PvP?", "Footbal", MessageBoxButtons.YesNo) == DialogResult.Yes ? Opponents.Player : Opponents.Bot;
             firstPlayerGameCards.Clear();
             secondPlayerGameCards.Clear();
             firstPlayerOutCards.Clear();
@@ -129,6 +139,12 @@ namespace _5Sem_Kursa4
             TimeLabel.Text = "Time\n" + (round*5) + ":00";
             NumberOutCards1Label.Text = firstPlayerOutCards.Count.ToString(CultureInfo.InvariantCulture);
             NumberOutCards2Label.Text = secondPlayerOutCards.Count.ToString(CultureInfo.InvariantCulture);
+            if (opponent == Opponents.Bot)
+            {
+                foreach (var card in firstPlayerGameCards)
+                    card.SetVisible(true);
+                secondPlayerBlocked = true;
+            }
         }
 
         private void skip1_Click(object sender, EventArgs e)
@@ -141,6 +157,11 @@ namespace _5Sem_Kursa4
         {
             turn = ChangeTurn(turn);
             CompareCards();
+        }
+
+        private void exitToolStripMenuItem_Click(object sender, EventArgs e)
+        {
+            Application.Exit();
         }
     }
 }
