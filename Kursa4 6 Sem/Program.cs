@@ -1,5 +1,3 @@
-using System;
-
 namespace MortalKombatXI
 {
 #if WINDOWS || XBOX
@@ -10,7 +8,7 @@ namespace MortalKombatXI
         /// </summary>
         static void Main(string[] args)
         {
-            using (Game1 game = new Game1())
+            using (MortalKombat game = new MortalKombat())
             {
                 game.Run();
             }

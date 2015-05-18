@@ -37,85 +37,159 @@
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Moves\ScorpionBlock.png">
+    <Compile Include="Moves\Scorpion\ScorpionAirHit.png">
+      <Name>ScorpionAirHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\Scorpion\ScorpionBlock.png">
       <Name>ScorpionBlock</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Moves\ScorpionGroundHit.png">
+    <Compile Include="Moves\Scorpion\ScorpionDownBlock.png">
+      <Name>ScorpionDownBlock</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\Scorpion\ScorpionGroundHit.png">
       <Name>ScorpionGroundHit</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Moves\ScorpionLeftHandHit.png">
+    <Compile Include="Moves\Scorpion\ScorpionHandSitHit.png">
+      <Name>ScorpionHandSitHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\Scorpion\ScorpionLeftHandHit.png">
       <Name>ScorpionLeftHandHit</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Moves\ScorpionMove.png">
+    <Compile Include="Moves\Scorpion\ScorpionMove.png">
       <Name>ScorpionMove</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Moves\ScorpionRightHandHit.png">
+    <Compile Include="Moves\Scorpion\ScorpionRightHandHit.png">
       <Name>ScorpionRightHandHit</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Moves\ScorpionSitDown.png">
+    <Compile Include="Moves\Scorpion\ScorpionSit.png">
+      <Name>ScorpionSit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\Scorpion\ScorpionSitDown.png">
       <Name>ScorpionSitDown</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Moves\ScorpionStay.png">
+    <Compile Include="Moves\Scorpion\ScorpionStay.png">
       <Name>ScorpionStay</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
-    <Compile Include="Moves\ScorpionWin.png">
+    <Compile Include="Moves\Scorpion\ScorpionUppercodeSitHit.png">
+      <Name>ScorpionUppercodeSitHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\Scorpion\ScorpionUppercodeStayHit.png">
+      <Name>ScorpionUppercodeStayHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\Scorpion\ScorpionWin.png">
       <Name>ScorpionWin</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Moves\ScorpionDownBlock.png">
-      <Name>ScorpionDownBlock</Name>
+    <Compile Include="Moves\SubZero\SubZeroAirHit.png">
+      <Name>SubZeroAirHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroBlock.png">
+      <Name>SubZeroBlock</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroDownBlock.png">
+      <Name>SubZeroDownBlock</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroGroundHit.png">
+      <Name>SubZeroGroundHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroHandSitHit.png">
+      <Name>SubZeroHandSitHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroLeftHandHit.png">
+      <Name>SubZeroLeftHandHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroMove.png">
+      <Name>SubZeroMove</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroRightHandHit.png">
+      <Name>SubZeroRightHandHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroSit.png">
+      <Name>SubZeroSit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroSitDown.png">
+      <Name>SubZeroSitDown</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroStay.png">
+      <Name>SubZeroStay</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroUppercodeSitHit.png">
+      <Name>SubZeroUppercodeSitHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroUppercodeStayHit.png">
+      <Name>SubZeroUppercodeStayHit</Name>
+      <Importer>TextureImporter</Importer>
+      <Processor>TextureProcessor</Processor>
+    </Compile>
+    <Compile Include="Moves\SubZero\SubZeroWin.png">
+      <Name>SubZeroWin</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Moves\ScorpionAirHit.png">
-      <Name>ScorpionAirHit</Name>
+    <Compile Include="Arenas\TheDeadPoolArena.png">
+      <Name>TheDeadPoolArena</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="Moves\ScorpionUppercodeStayHit.png">
-      <Name>ScorpionUppercodeStayHit</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Moves\ScorpionHandSitHit.png">
-      <Name>ScorpionHandSitHit</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Moves\ScorpionSit.png">
-      <Name>ScorpionSit</Name>
-      <Importer>TextureImporter</Importer>
-      <Processor>TextureProcessor</Processor>
-    </Compile>
-  </ItemGroup>
-  <ItemGroup>
-    <Compile Include="Moves\ScorpionUppercodeSitHit.png">
-      <Name>ScorpionUppercodeSitHit</Name>
+    <Compile Include="DamageBar.png">
+      <Name>DamageBar</Name>
       <Importer>TextureImporter</Importer>
       <Processor>TextureProcessor</Processor>
     </Compile>
