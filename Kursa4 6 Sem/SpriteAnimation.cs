@@ -45,10 +45,8 @@ namespace MortalKombatXI
         public Rectangle SourceRect { get; set; }
 
 
-        public SpriteAnimation(Dictionary<string, Texture2D> texture, int currentFrame, int spriteWidth, int spriteHeight, bool invertMove)
+        public SpriteAnimation(int spriteWidth, int spriteHeight, bool invertMove)
         {
-	        this.SpriteTexture = texture;
-	        this.currentFrame = currentFrame;
 	        this.spriteWidth = spriteWidth;
 	        this.spriteHeight = spriteHeight;
             this.invertMove = invertMove;

@@ -1,6 +1,8 @@
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
+using MortalKombatXI.Classes;
+using MortalKombatXI.Screens;
 
 
 namespace MortalKombatXI
@@ -10,18 +12,14 @@ namespace MortalKombatXI
     /// </summary>
     public class MortalKombat : Game
     {
-        Texture2D backgroundTexture2D;
-        Texture2D arenaTexture;
-        GraphicsDeviceManager graphics;
+        readonly GraphicsDeviceManager graphics;
         SpriteBatch spriteBatch;
 
-        SpriteAnimation spriteFirst;
-        PlayerState stateFirst;
-        HealthBar healthFirst;
-
-        SpriteAnimation spriteSecond;
-        PlayerState stateSecond;
-        HealthBar healthSecond;
+        private MenuScreen menuScreen;
+        private GameScreen gameScreen;
+        private HelpScreen helpScreen;
+        private int currentMenuItem;
+        private int interval;
 
         int width;
         int height;
@@ -47,8 +45,8 @@ namespace MortalKombatXI
         /// </summary>
         protected override void Initialize()
         {
-            // TODO: Add your initialization logic here
-            
+            currentMenuItem = 1;
+            interval = 0;
             base.Initialize();
         }
 
@@ -57,31 +55,109 @@ namespace MortalKombatXI
         /// all of your content.
         /// </summary>
         protected override void LoadContent()
-        {   
+        {
+            spriteBatch = new SpriteBatch(GraphicsDevice);
+            Services.AddService(typeof(SpriteBatch), spriteBatch);
+
             var scorpionDictionary = DictionaryLoader.GetDictionary("Scorpion", Content);
             var subZeroDictionary = DictionaryLoader.GetDictionary("SubZero", Content);
-            healthFirst = new HealthBar(new Vector2(400, 100), Content.Load<Texture2D>("DamageBar"));
-            healthSecond = new HealthBar(new Vector2(width - 400, 100), Content.Load<Texture2D>("DamageBar"));
-            // Create a new SpriteBatch, which can be used to draw textures.
-            spriteBatch = new SpriteBatch(GraphicsDevice);
+            var firstHealth = new HealthBar(new Vector2(400, 100), Content.Load<Texture2D>("DamageBar"));
+            var secondHealth = new HealthBar(new Vector2(width - 400, 100), Content.Load<Texture2D>("DamageBar"));
+            var firstMoves = new PlayerControls();
+            firstMoves.GetFirstPlayerKeyboard();
+            var secondMoves = new PlayerControls();
+            secondMoves.GetSecondPlayerKeyboard();
             
             //first player
-            spriteFirst = new SpriteAnimation(scorpionDictionary, 0, GameSettings.SpriteWidth, GameSettings.SpriteHeigth, false);
-            var moves = new PlayerControls();
-            moves.GetFirstPlayerKeyboard();
-            spriteFirst.moves = moves;
-            spriteFirst.Position = new Vector2(GameSettings.FirstPosition.X - 100, GameSettings.FirstPosition.Y);
-    
-            //second player
-            spriteSecond = new SpriteAnimation(subZeroDictionary, 0, GameSettings.SpriteWidth, GameSettings.SpriteHeigth, true);
-            moves = new PlayerControls();
-            moves.GetSecondPlayerKeyboard();
-            spriteSecond.moves = moves;
-            spriteSecond.Position = new Vector2(GameSettings.FirstPosition.X + 100, GameSettings.FirstPosition.Y);
+            var firstSprite = new SpriteAnimation(GameSettings.SpriteWidth, GameSettings.SpriteHeigth, false)
+            {
+                SpriteTexture = scorpionDictionary,
+                moves = firstMoves,
+                Position = new Vector2(GameSettings.FirstPosition.X - 100, GameSettings.FirstPosition.Y)
+            };
 
-            // TODO: use this.Content to load your game content here
-            backgroundTexture2D = Content.Load<Texture2D>("BackgroundMenu");
-            arenaTexture = Content.Load<Texture2D>("Arenas//TheDeadPoolArena");
+            //second player
+            var secondSprite = new SpriteAnimation(GameSettings.SpriteWidth, GameSettings.SpriteHeigth, true)
+            {
+                SpriteTexture = subZeroDictionary,
+                moves = secondMoves,
+                Position = new Vector2(GameSettings.FirstPosition.X + 100, GameSettings.FirstPosition.Y)
+            };
+
+            //game screen
+            var arenaRect = new Rectangle(0, 0, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height);
+            var arenaTexture = Content.Load<Texture2D>("Arenas//TheDeadPoolArena");
+            gameScreen = new GameScreen(this, width, arenaTexture, arenaRect)
+            {
+                FirstSprite = firstSprite,
+                FirstHealthBar = firstHealth,
+
+                SecondSprite = secondSprite,
+                SecondHealthBar = secondHealth,
+            };
+
+            var textures = new Texture2D[]
+            {
+                null,
+                null,
+                null,
+                Content.Load<Texture2D>("BackgroundMenu"),
+                null
+
+            };
+            var rectangles = new Rectangle[]
+            {
+                new Rectangle(), 
+                new Rectangle(), 
+                new Rectangle(), 
+                new Rectangle(0, 0, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height),
+                new Rectangle(), 
+            };
+            var font = Content.Load<SpriteFont>("Narkisim");
+            var gameNameItem = new MenuItem
+            {
+                MenuFont = font,
+                MenuItemPosition = new Vector2(width/2, 100),
+                MenuItemName = "Mortal Kombat",
+                MenuItemOrigin = font.MeasureString("Mortal Kombat")/2
+            };
+            font = Content.Load<SpriteFont>("Viner Hand ITC");
+            var startItem = new MenuItem
+            {
+                MenuFont = font,
+                MenuItemPosition = new Vector2(width / 2, 300),
+                MenuItemName = "Start game",
+                MenuItemOrigin = font.MeasureString("Start game") / 2
+            };
+            var helpItem = new MenuItem
+            {
+                MenuFont = font,
+                MenuItemPosition = new Vector2(width / 2, 400),
+                MenuItemName = "Help",
+                MenuItemOrigin = font.MeasureString("Help") / 2
+            };
+            var exitItem = new MenuItem
+            {
+                MenuFont = font,
+                MenuItemPosition = new Vector2(width / 2, 500),
+                MenuItemName = "Exit",
+                MenuItemOrigin = font.MeasureString("Exit") / 2
+            };
+            var menuItems = new MenuItem[]
+            {
+                startItem,
+                helpItem,
+                exitItem,
+                gameNameItem
+            };
+            var texture = Content.Load<Texture2D>("BackgroundMenu");
+            var rect = new Rectangle(0, 0, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width,
+                graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height);
+            menuScreen = new MenuScreen(this, menuItems, texture, rect);
+
+            Components.Add(menuScreen);
+            Components.Add(gameScreen);
+            menuScreen.Show();
         }
 
         /// <summary>
@@ -90,7 +166,71 @@ namespace MortalKombatXI
         /// </summary>
         protected override void UnloadContent()
         {
-            // TODO: Unload any non ContentManager content here
+        }
+
+        //Обработка нажатий на клавиши
+        void KeyboardHandle()
+        {
+            KeyboardState kbState = Keyboard.GetState();
+            interval++;
+            if (interval >= 10)
+            {
+                interval = 0;
+                if (menuScreen.Enabled)
+                {
+                    if (kbState.IsKeyDown(Keys.Up))
+                    {
+                        currentMenuItem--;
+                        if (currentMenuItem < 1)
+                        {
+                            currentMenuItem = 3;
+                        }
+                        menuScreen.GetKey(currentMenuItem);
+                    }
+                    if (kbState.IsKeyDown(Keys.Down))
+                    {
+                        currentMenuItem++;
+                        if (currentMenuItem > 3)
+                        {
+                            currentMenuItem = 1;                    
+                        }
+                        menuScreen.GetKey(currentMenuItem);
+                    }
+                    if (kbState.IsKeyDown(Keys.Enter))
+                    {
+                        switch (currentMenuItem)
+                        {
+                            case 1:
+                                menuScreen.Hide();
+                                gameScreen.Show();
+                                break;
+                            /*case 2:
+                                menuScreen.Hide();
+                                helpScreen.Show();
+                                break;*/
+                            case 3:
+                                Exit();
+                                break;
+                        }
+                    }
+                }
+            }
+            /*if (helpScreen.Enabled)
+            {
+                if (kbState.IsKeyDown(Keys.Escape))
+                {
+                    helpScreen.Hide();
+                    menuScreen.Show();
+                }
+            }*/
+            if (gameScreen.Enabled)
+            {
+                if (kbState.IsKeyDown(Keys.Escape))
+                {
+                    gameScreen.Hide();
+                    menuScreen.Show();
+                }
+            }
         }
 
         /// <summary>
@@ -100,34 +240,7 @@ namespace MortalKombatXI
         /// <param name="gameTime">Provides a snapshot of timing values.</param>
         protected override void Update(GameTime gameTime)
         {
-            if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Escape) ||
-                GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
-                Exit();
-            if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Enter))
-            {
-                GameSettings.FightStart = true;
-            }
-            if (Keyboard.GetState(PlayerIndex.One).IsKeyDown(Keys.Back))
-            {
-                GameSettings.FightStart = false;
-            }
-
-            if (GameSettings.FightStart)
-            {
-                stateFirst = spriteFirst.HandleSpriteMovement(gameTime);
-                stateSecond = spriteSecond.HandleSpriteMovement(gameTime);
-                // Allows the game to exit
-
-
-                // TODO: Add your update logic here
-                if (stateFirst == PlayerState.Move || stateSecond == PlayerState.Move)
-                    CollideDetector.RepairMoveCollision(spriteFirst, spriteSecond, width);
-                CollideDetector.HitCollision(spriteFirst, spriteSecond, gameTime);
-                healthFirst.Update(spriteFirst.Information.Health);
-                healthSecond.Update(spriteSecond.Information.Health);
-            }
-
-
+            KeyboardHandle();
             base.Update(gameTime);
         }
 
@@ -138,79 +251,10 @@ namespace MortalKombatXI
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            //spriteSecond.CurrentTexture();
-
-            // TODO: Add your drawing code here
 
             spriteBatch.Begin();
-
-            if (GameSettings.FightStart)
-            {
-                spriteBatch.Draw(
-                arenaTexture,
-                new Rectangle(
-                    0,
-                    0,
-                    graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width,
-                    graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height
-                    ),
-                Color.White);
-                spriteBatch.Draw(
-                    spriteFirst.CurrentTexture,
-                    spriteFirst.Position,
-                    spriteFirst.SourceRect,
-                    Color.White,
-                    0f,
-                    spriteFirst.Origin,
-                    1.0f,
-                    SpriteEffects.None,
-                    0);
-                spriteBatch.Draw(
-                    spriteSecond.CurrentTexture,
-                    spriteSecond.Position,
-                    spriteSecond.SourceRect,
-                    Color.White,
-                    0f,
-                    spriteSecond.Origin,
-                    1.0f,
-                    SpriteEffects.FlipHorizontally,
-                    0);
-                spriteBatch.Draw(
-                    healthFirst.Texture,
-                    healthFirst.Position,
-                    healthFirst.SourceRect,
-                    Color.White,
-                    0f,
-                    healthFirst.Origin,
-                    1.0f,
-                    SpriteEffects.None,
-                    0);
-                spriteBatch.Draw(
-                    healthSecond.Texture,
-                    healthSecond.Position,
-                    healthSecond.SourceRect,
-                    Color.White,
-                    0f,
-                    healthSecond.Origin,
-                    1.0f,
-                    SpriteEffects.None,
-                    0);
-            }
-            else
-            {
-                spriteBatch.Draw(
-                backgroundTexture2D,
-                new Rectangle(
-                    0,
-                    0,
-                    graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width,
-                    graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height
-                    ),
-                Color.White);
-            }
+            base.Draw(gameTime);
             spriteBatch.End();
-
-            //base.Draw(gameTime);
         }
     }
 }
