@@ -7,8 +7,6 @@ namespace MortalKombatXI.Screens
     class MenuScreen : Screen
     {
         private readonly Menu[] menu;
-        private readonly Color activeColor = Color.DarkMagenta;
-        private readonly Color passiveColor = Color.White;
 
         private readonly Texture2D   menuBackground;
         private readonly MenuItem    menuGameName;
@@ -20,9 +18,9 @@ namespace MortalKombatXI.Screens
             menuGameName = items[3];
             menuBackgroundR = backgroundRect;
             menu = new Menu[3];
-            menu[0] = new Menu(items[0], activeColor);
-            menu[1] = new Menu(items[1], passiveColor);
-            menu[2] = new Menu(items[2], passiveColor);
+            menu[0] = new Menu(items[0], GameSettings.activeColor);
+            menu[1] = new Menu(items[1], GameSettings.menuColor);
+            menu[2] = new Menu(items[2], GameSettings.menuColor);
         }
 
         public void GetKey(int i)
@@ -32,22 +30,22 @@ namespace MortalKombatXI.Screens
             //i=3 - Exit
             if (i == 1)
             {
-                menu[0].MenuColor = activeColor;
-                menu[1].MenuColor = passiveColor;
-                menu[2].MenuColor = passiveColor;
+                menu[0].MenuColor = GameSettings.activeColor;
+                menu[1].MenuColor = GameSettings.menuColor;
+                menu[2].MenuColor = GameSettings.menuColor;
 
             }
             if (i == 2)
             {
-                menu[0].MenuColor = passiveColor;
-                menu[1].MenuColor = activeColor;
-                menu[2].MenuColor = passiveColor;
+                menu[0].MenuColor = GameSettings.menuColor;
+                menu[1].MenuColor = GameSettings.activeColor;
+                menu[2].MenuColor = GameSettings.menuColor;
             }
             if (i == 3)
             {
-                menu[0].MenuColor = passiveColor;
-                menu[1].MenuColor = passiveColor;
-                menu[2].MenuColor = activeColor;
+                menu[0].MenuColor = GameSettings.menuColor;
+                menu[1].MenuColor = GameSettings.menuColor;
+                menu[2].MenuColor = GameSettings.activeColor;
             }
         }
 

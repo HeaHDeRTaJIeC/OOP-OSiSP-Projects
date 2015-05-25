@@ -18,6 +18,8 @@ namespace MortalKombatXI
         private MenuScreen menuScreen;
         private GameScreen gameScreen;
         private HelpScreen helpScreen;
+        private GamePauseScreen gamePauseScreen;
+        private GameRestartScreen gameRestartScreen;
         private int currentMenuItem;
         private int interval;
 
@@ -59,10 +61,10 @@ namespace MortalKombatXI
             spriteBatch = new SpriteBatch(GraphicsDevice);
             Services.AddService(typeof(SpriteBatch), spriteBatch);
 
-            var scorpionDictionary = DictionaryLoader.GetDictionary("Scorpion", Content);
-            var subZeroDictionary = DictionaryLoader.GetDictionary("SubZero", Content);
-            var firstHealth = new HealthBar(new Vector2(400, 100), Content.Load<Texture2D>("DamageBar"));
-            var secondHealth = new HealthBar(new Vector2(width - 400, 100), Content.Load<Texture2D>("DamageBar"));
+            var scorpionDictionary = DictionaryLoader.GetDictionary(GameSettings.firstName, Content);
+            var subZeroDictionary = DictionaryLoader.GetDictionary(GameSettings.secondName, Content);
+            var firstHealth = new HealthBar(GameSettings.HealthBar, Content.Load<Texture2D>("DamageBar"));
+            var secondHealth = new HealthBar(new Vector2(width - GameSettings.HealthBar.X, GameSettings.HealthBar.Y), Content.Load<Texture2D>("DamageBar"));
             var firstMoves = new PlayerControls();
             firstMoves.GetFirstPlayerKeyboard();
             var secondMoves = new PlayerControls();
@@ -72,7 +74,7 @@ namespace MortalKombatXI
             var firstSprite = new SpriteAnimation(GameSettings.SpriteWidth, GameSettings.SpriteHeigth, false)
             {
                 SpriteTexture = scorpionDictionary,
-                moves = firstMoves,
+                Moves = firstMoves,
                 Position = new Vector2(GameSettings.FirstPosition.X - 100, GameSettings.FirstPosition.Y)
             };
 
@@ -80,14 +82,14 @@ namespace MortalKombatXI
             var secondSprite = new SpriteAnimation(GameSettings.SpriteWidth, GameSettings.SpriteHeigth, true)
             {
                 SpriteTexture = subZeroDictionary,
-                moves = secondMoves,
+                Moves = secondMoves,
                 Position = new Vector2(GameSettings.FirstPosition.X + 100, GameSettings.FirstPosition.Y)
             };
 
             //game screen
             var arenaRect = new Rectangle(0, 0, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height);
             var arenaTexture = Content.Load<Texture2D>("Arenas//TheDeadPoolArena");
-            gameScreen = new GameScreen(this, width, arenaTexture, arenaRect)
+            gameScreen = new GameScreen(this, Content.Load<SpriteFont>("Pristina"), Content.Load<SpriteFont>("Courier New"), width, arenaTexture, arenaRect)
             {
                 FirstSprite = firstSprite,
                 FirstHealthBar = firstHealth,
@@ -96,23 +98,7 @@ namespace MortalKombatXI
                 SecondHealthBar = secondHealth,
             };
 
-            var textures = new Texture2D[]
-            {
-                null,
-                null,
-                null,
-                Content.Load<Texture2D>("BackgroundMenu"),
-                null
-
-            };
-            var rectangles = new Rectangle[]
-            {
-                new Rectangle(), 
-                new Rectangle(), 
-                new Rectangle(), 
-                new Rectangle(0, 0, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Width, graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height),
-                new Rectangle(), 
-            };
+            //menu screen
             var font = Content.Load<SpriteFont>("Narkisim");
             var gameNameItem = new MenuItem
             {
@@ -155,8 +141,60 @@ namespace MortalKombatXI
                 graphics.GraphicsDevice.Adapter.CurrentDisplayMode.Height);
             menuScreen = new MenuScreen(this, menuItems, texture, rect);
 
+            //help screen
+            helpScreen = new HelpScreen(this, texture, rect, Content.Load<SpriteFont>("Courier new"), Content.Load<SpriteFont>("Viner Hand ITC"), firstMoves, secondMoves);
+
+            //game pause screen
+            font = Content.Load<SpriteFont>("Viner Hand ITC");
+            var resumeItem = new MenuItem
+            {
+                MenuFont = font,
+                MenuItemPosition = new Vector2(width / 2, 300),
+                MenuItemName = "Resume",
+                MenuItemOrigin = font.MeasureString("Resume") / 2
+            };
+            exitItem = new MenuItem
+            {
+                MenuFont = font,
+                MenuItemPosition = new Vector2(width / 2, 400),
+                MenuItemName = "Exit",
+                MenuItemOrigin = font.MeasureString("Exit") / 2
+            };
+            menuItems = new MenuItem[]
+            {
+                resumeItem,
+                exitItem
+            };
+            gamePauseScreen = new GamePauseScreen(this, menuItems);
+
+            //game restart screen
+            font = Content.Load<SpriteFont>("Viner Hand ITC");
+            var restartItem = new MenuItem
+            {
+                MenuFont = font,
+                MenuItemPosition = new Vector2(width / 2, 300),
+                MenuItemName = "Restart",
+                MenuItemOrigin = font.MeasureString("Restart") / 2
+            };
+            exitItem = new MenuItem
+            {
+                MenuFont = font,
+                MenuItemPosition = new Vector2(width / 2, 400),
+                MenuItemName = "Exit",
+                MenuItemOrigin = font.MeasureString("Exit") / 2
+            };
+            menuItems = new MenuItem[]
+            {
+                restartItem,
+                exitItem
+            };
+            gameRestartScreen = new GameRestartScreen(this, menuItems);
+
             Components.Add(menuScreen);
             Components.Add(gameScreen);
+            Components.Add(helpScreen);
+            Components.Add(gamePauseScreen);
+            Components.Add(gameRestartScreen);
             menuScreen.Show();
         }
 
@@ -173,7 +211,7 @@ namespace MortalKombatXI
         {
             KeyboardState kbState = Keyboard.GetState();
             interval++;
-            if (interval >= 10)
+            if (interval >= 5)
             {
                 interval = 0;
                 if (menuScreen.Enabled)
@@ -202,33 +240,119 @@ namespace MortalKombatXI
                         {
                             case 1:
                                 menuScreen.Hide();
+                                GameState.StartNewGame();
                                 gameScreen.Show();
                                 break;
-                            /*case 2:
+                            case 2:
                                 menuScreen.Hide();
                                 helpScreen.Show();
-                                break;*/
+                                break;
                             case 3:
                                 Exit();
                                 break;
                         }
                     }
                 }
+                if (gamePauseScreen.Enabled)
+                {
+                    if (kbState.IsKeyDown(Keys.Up))
+                    {
+                        currentMenuItem--;
+                        if (currentMenuItem < 1)
+                        {
+                            currentMenuItem = 2;
+                        }
+                        gamePauseScreen.GetKey(currentMenuItem);
+                    }
+                    if (kbState.IsKeyDown(Keys.Down))
+                    {
+                        currentMenuItem++;
+                        if (currentMenuItem > 2)
+                        {
+                            currentMenuItem = 1;
+                        }
+                        gamePauseScreen.GetKey(currentMenuItem);
+                    }
+                    if (kbState.IsKeyDown(Keys.Enter))
+                    {
+                        switch (currentMenuItem)
+                        {
+                            case 1:
+                                GameState.IsPaused = false;
+                                gamePauseScreen.Hide();
+                                break;
+                            case 2:
+                                GameState.IsPaused = false;
+                                gamePauseScreen.Hide();
+                                gameScreen.Hide();
+                                menuScreen.Show();
+                                currentMenuItem = 1;
+                                break;
+                        }
+                    }
+                }
+                if (gameRestartScreen.Enabled)
+                {
+                    GameState.ShowMenu = false;
+                    if (kbState.IsKeyDown(Keys.Up))
+                    {
+                        currentMenuItem--;
+                        if (currentMenuItem < 1)
+                        {
+                            currentMenuItem = 2;
+                        }
+                        gameRestartScreen.GetKey(currentMenuItem);
+                    }
+                    if (kbState.IsKeyDown(Keys.Down))
+                    {
+                        currentMenuItem++;
+                        if (currentMenuItem > 2)
+                        {
+                            currentMenuItem = 1;
+                        }
+                        gameRestartScreen.GetKey(currentMenuItem);
+                    }
+                    if (kbState.IsKeyDown(Keys.Enter))
+                    {
+                        switch (currentMenuItem)
+                        {
+                            case 1:
+                                GameState.IsPaused = false;
+                                gameRestartScreen.Hide();
+                                GameState.StartNewGame();
+                                break;
+                            case 2:
+                                GameState.IsPaused = false;
+                                gameRestartScreen.Hide();
+                                gameScreen.Hide();
+                                menuScreen.Show();
+                                currentMenuItem = 1;
+                                break;
+                        }
+                    }
+                }
             }
-            /*if (helpScreen.Enabled)
+            if (helpScreen.Enabled)
             {
                 if (kbState.IsKeyDown(Keys.Escape))
                 {
                     helpScreen.Hide();
                     menuScreen.Show();
                 }
-            }*/
+            }
             if (gameScreen.Enabled)
             {
                 if (kbState.IsKeyDown(Keys.Escape))
                 {
-                    gameScreen.Hide();
-                    menuScreen.Show();
+                    GameState.IsPaused = true;
+                    gamePauseScreen.Show();
+                    currentMenuItem = 1;
+                }
+                if (GameState.ShowMenu)
+                {
+                    GameState.IsPaused = true;
+                    gameRestartScreen.Show();
+                    currentMenuItem = 1;
                 }
             }
         }

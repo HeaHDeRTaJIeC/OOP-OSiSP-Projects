@@ -25,8 +25,8 @@ namespace MortalKombatXI
         readonly int spriteWidth;
         readonly int spriteHeight;
         KeyboardState currentKbState;
-        public PlayerControls moves;
-        public PlayerInformation Information;
+        public PlayerControls Moves { get; set; }
+        public PlayerInformation Information { get; set; }
         Vector2 position;
         public Vector2 Position
         {
@@ -53,7 +53,7 @@ namespace MortalKombatXI
             Information = new PlayerInformation
             {
                 CurrentState = new PlayerState(),
-                Health = 10
+                Health = GameSettings.MaxHealth
             };
         }
 
@@ -61,6 +61,8 @@ namespace MortalKombatXI
         {
             moveDelta = 0;
             currentKbState = Keyboard.GetState();
+            if (GameState.ShowRound || GameState.ShowWinner || GameState.IsEnd)
+                currentKbState = new KeyboardState(Keys.None);
             SourceRect = new Rectangle(currentFrame * spriteWidth, 0, spriteWidth, spriteHeight);
 
             if (!animateInProgress)
@@ -70,7 +72,7 @@ namespace MortalKombatXI
                 if (!isBlock)
                 {
                     //Sit
-                    if (currentKbState.IsKeyDown(moves.MoveDown))
+                    if (currentKbState.IsKeyDown(Moves.MoveDown))
                     {
                         if (!isSitDown)
                         {
@@ -81,7 +83,7 @@ namespace MortalKombatXI
                         }
                     }
                     //Stay
-                    if (currentKbState.IsKeyDown(moves.MoveUp))
+                    if (currentKbState.IsKeyDown(Moves.MoveUp))
                     {
                         if (isSitDown)
                         {
@@ -96,7 +98,7 @@ namespace MortalKombatXI
                 if (isSitDown)
                 {
                     //Make block (sit)
-                    if (currentKbState.IsKeyDown(moves.Block))
+                    if (currentKbState.IsKeyDown(Moves.Block))
                     {
                         currentFrame = isBlock ? 1 : 0;
                         isBlock = true;
@@ -112,8 +114,8 @@ namespace MortalKombatXI
                     }
 
                     //Hand hit
-                    if (currentKbState.IsKeyDown(moves.HandHitLeft) 
-                        || currentKbState.IsKeyDown(moves.HandHitRight))
+                    if (currentKbState.IsKeyDown(Moves.HandHitLeft) 
+                        || currentKbState.IsKeyDown(Moves.HandHitRight))
                     {
                         prevAction = AnimateHandSitHit;
                         animateInProgress = true;
@@ -122,7 +124,7 @@ namespace MortalKombatXI
                     }
 
                     //Uppercode hit
-                    if (currentKbState.IsKeyDown(moves.UppercodeHit))
+                    if (currentKbState.IsKeyDown(Moves.UppercodeHit))
                     {
                         prevAction = AnimateUppercodeSitHit;
                         animateInProgress = true;
@@ -131,7 +133,7 @@ namespace MortalKombatXI
                     }
 
                     //Ground hit
-                    if (currentKbState.IsKeyDown(moves.LegHit))
+                    if (currentKbState.IsKeyDown(Moves.LegHit))
                     {
                         prevAction = AnimateGroundHit;
                         animateInProgress = true;
@@ -145,7 +147,7 @@ namespace MortalKombatXI
                 else
                 {
                     //Make block
-                    if (currentKbState.IsKeyDown(moves.Block))
+                    if (currentKbState.IsKeyDown(Moves.Block))
                     {
                         currentFrame = isBlock ? 1 : 0;
                         isBlock = true;
@@ -167,7 +169,7 @@ namespace MortalKombatXI
                 if (!isBlock && !isSitDown)
                 {
                     //Air hit
-                    if (currentKbState.IsKeyDown(moves.LegHit))
+                    if (currentKbState.IsKeyDown(Moves.LegHit))
                     {
                         prevAction = AnimateAirHit;
                         animateInProgress = true;
@@ -176,7 +178,7 @@ namespace MortalKombatXI
                     }
 
                     //Win move
-                    if (currentKbState.IsKeyDown(moves.WinPose))
+                    if (currentKbState.IsKeyDown(Moves.WinPose))
                     {
                         prevAction = AnimateWin;
                         animateInProgress = true;
@@ -185,7 +187,7 @@ namespace MortalKombatXI
                     }
 
                     //Move left
-                    if (currentKbState.IsKeyDown(moves.MoveLeft))
+                    if (currentKbState.IsKeyDown(Moves.MoveLeft))
                     {
                         if (!invertMove)
                         {
@@ -210,7 +212,7 @@ namespace MortalKombatXI
                     }
 
                     //Move right
-                    if (currentKbState.IsKeyDown(moves.MoveRight))
+                    if (currentKbState.IsKeyDown(Moves.MoveRight))
                     {
                         if (!invertMove)
                         {
@@ -235,7 +237,7 @@ namespace MortalKombatXI
                     }
 
                     //Left hand straight hit
-                    if (currentKbState.IsKeyDown(moves.HandHitLeft))
+                    if (currentKbState.IsKeyDown(Moves.HandHitLeft))
                     {
                         prevAction = AnimateRightHandHit;
                         animateInProgress = true;
@@ -244,7 +246,7 @@ namespace MortalKombatXI
                     }
 
                     //Right hand straight hit
-                    if (currentKbState.IsKeyDown(moves.HandHitRight))
+                    if (currentKbState.IsKeyDown(Moves.HandHitRight))
                     {
                         prevAction = AnimateLeftHandHit;
                         animateInProgress = true;
@@ -253,7 +255,7 @@ namespace MortalKombatXI
                     }
 
                     //Uppercode hit
-                    if (currentKbState.IsKeyDown(moves.UppercodeHit))
+                    if (currentKbState.IsKeyDown(Moves.UppercodeHit))
                     {
                         prevAction = AnimateUppercodeStayHit;
                         animateInProgress = true;
@@ -282,6 +284,17 @@ namespace MortalKombatXI
 
             Origin = new Vector2(SourceRect.Width / 2, SourceRect.Height / 2);
             return Information.CurrentState;
+        }
+
+        public void Win(GameTime gameTime)
+        {
+            prevAction = AnimateWin;
+            animateInProgress = true;
+        }
+
+        public void Stop()
+        {
+            animateInProgress = false;
         }
 
         public void AnimateStay(GameTime gameTime)
@@ -327,7 +340,6 @@ namespace MortalKombatXI
 
                 if (currentFrame > 6)
                 {
-                    animateInProgress = false;
                     currentFrame = 0;
                 }
                 timer = 0f;
@@ -719,6 +731,13 @@ namespace MortalKombatXI
                 }
                 timer = 0f;
             }
+        }
+
+        public void Routine()
+        {
+            isSitDown = false;
+            isBlock = false;
+            animateInProgress = false;
         }
     }
 }

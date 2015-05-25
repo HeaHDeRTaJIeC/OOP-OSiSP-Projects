@@ -5,7 +5,7 @@
         public int Position { get; set; }
         public int Range { get; private set; }
         public int Damage { get; private set; }
-        public bool isHited;
+        public bool IsHited;
         private int health;
         public int Health 
         {

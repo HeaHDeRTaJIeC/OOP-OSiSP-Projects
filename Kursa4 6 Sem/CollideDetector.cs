@@ -61,15 +61,15 @@ namespace MortalKombatXI
                 {
                     first.GetType().GetMethod(method).Invoke(first, new object[] {gameTime});
                     if (method != "AnimateHitBlock" && method != "AnimateHitDownBlock")
-                        if (!first.Information.isHited)
+                        if (!first.Information.IsHited)
                         {
                             first.Information.Health -= second.Information.Damage;
-                            first.Information.isHited = true;
+                            first.Information.IsHited = true;
                         }
                 }
             }
             else
-                first.Information.isHited = false;
+                first.Information.IsHited = false;
             method = HitActions[(int) second.Information.CurrentState, (int) first.Information.CurrentState];
             if (method != null)
             {
@@ -77,15 +77,15 @@ namespace MortalKombatXI
                 {
                     second.GetType().GetMethod(method).Invoke(second, new object[] {gameTime});
                     if (method != "AnimateHitBlock" && method != "AnimateHitDownBlock")
-                        if (!second.Information.isHited)
+                        if (!second.Information.IsHited)
                         {
                             second.Information.Health -= first.Information.Damage;
-                            second.Information.isHited = true;
+                            second.Information.IsHited = true;
                         }
                 }
             }
             else
-                second.Information.isHited = false;
+                second.Information.IsHited = false;
         }
     }
 }
