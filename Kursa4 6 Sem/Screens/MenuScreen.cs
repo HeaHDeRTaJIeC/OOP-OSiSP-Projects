@@ -51,18 +51,10 @@ namespace MortalKombatXI.Screens
 
         public override void Draw(GameTime gameTime)
         {
-            //mortal kombat
-            /*ScreenSpriteBatch.DrawString(
-                spriteFont,
-                outString,
-                stringPosition,
-                Color.DarkRed,
-                0,
-                stringOrigin,
-                1.0f,
-                SpriteEffects.None,
-                0.5f);*/
-            ScreenSpriteBatch.Draw(menuBackground, menuBackgroundR, Color.White);
+            ScreenSpriteBatch.Draw(
+                menuBackground, 
+                menuBackgroundR, 
+                Color.White);
             ScreenSpriteBatch.DrawString(
                 menuGameName.MenuFont,
                 menuGameName.MenuItemName,

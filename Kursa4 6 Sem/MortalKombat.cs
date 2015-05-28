@@ -33,7 +33,7 @@ namespace MortalKombatXI
             height = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height;
             graphics.PreferredBackBufferWidth = width;
             graphics.PreferredBackBufferHeight = height;
-            //graphics.IsFullScreen = true;
+            graphics.IsFullScreen = true;
             Content.RootDirectory = "Content";
             GameSettings.FirstPosition.X = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Width/2;
             GameSettings.FirstPosition.Y = GraphicsAdapter.DefaultAdapter.CurrentDisplayMode.Height*7/11;
@@ -112,8 +112,8 @@ namespace MortalKombatXI
             {
                 MenuFont = font,
                 MenuItemPosition = new Vector2(width / 2, 300),
-                MenuItemName = "Start game",
-                MenuItemOrigin = font.MeasureString("Start game") / 2
+                MenuItemName = "New game",
+                MenuItemOrigin = font.MeasureString("New game") / 2
             };
             var helpItem = new MenuItem
             {
@@ -173,8 +173,8 @@ namespace MortalKombatXI
             {
                 MenuFont = font,
                 MenuItemPosition = new Vector2(width / 2, 300),
-                MenuItemName = "Restart",
-                MenuItemOrigin = font.MeasureString("Restart") / 2
+                MenuItemName = "New game",
+                MenuItemOrigin = font.MeasureString("New game") / 2
             };
             exitItem = new MenuItem
             {

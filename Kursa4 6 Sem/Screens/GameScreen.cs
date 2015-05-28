@@ -1,7 +1,5 @@
-﻿using System;
-using Microsoft.Xna.Framework;
+﻿using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
 
 namespace MortalKombatXI.Screens
 {
@@ -29,12 +27,6 @@ namespace MortalKombatXI.Screens
             this.width = width;
             this.arenaTexture = arenaTexture;
             this.arenaRect = arenaRect;
-        }
-
-
-        public override void Initialize()
-        {
-            base.Initialize();
         }
 
         public override void Update(GameTime gameTime)

@@ -13,7 +13,6 @@ namespace MortalKombatXI
         public Keys HandHitRight { get; set; }
         public Keys UppercodeHit { get; set; }
         public Keys LegHit { get; set; }
-        public Keys WinPose { get; set; }
 
         public void GetFirstPlayerKeyboard()
         {
@@ -22,11 +21,10 @@ namespace MortalKombatXI
             MoveLeft = Keys.A;
             MoveRight = Keys.D;
             Block = Keys.Q;
-            HandHitLeft = Keys.G;
-            HandHitRight = Keys.F;
+            HandHitLeft = Keys.F;
+            HandHitRight = Keys.G;
             LegHit = Keys.T;
             UppercodeHit = Keys.R;
-            WinPose = Keys.Space;
         }
 
         public void GetSecondPlayerKeyboard()
@@ -35,12 +33,11 @@ namespace MortalKombatXI
             MoveUp = Keys.Up;
             MoveLeft = Keys.Left;
             MoveRight = Keys.Right;
-            Block = Keys.B;
-            HandHitLeft = Keys.L;
-            HandHitRight = Keys.K;
-            LegHit = Keys.O;
-            UppercodeHit = Keys.U;
-            WinPose = Keys.Space;
+            Block = Keys.I;
+            HandHitLeft = Keys.K;
+            HandHitRight = Keys.L;
+            LegHit = Keys.P;
+            UppercodeHit = Keys.O;
         }
     }
 }

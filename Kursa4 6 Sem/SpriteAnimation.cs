@@ -177,15 +177,6 @@ namespace MortalKombatXI
                         AnimateAirHit(gameTime);
                     }
 
-                    //Win move
-                    if (currentKbState.IsKeyDown(Moves.WinPose))
-                    {
-                        prevAction = AnimateWin;
-                        animateInProgress = true;
-                        currentFrame = 0;
-                        AnimateWin(gameTime);
-                    }
-
                     //Move left
                     if (currentKbState.IsKeyDown(Moves.MoveLeft))
                     {

@@ -1,0 +1,90 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<ClassDiagram MajorVersion="1" MinorVersion="1">
+  <Class Name="MortalKombatXI.PlayerControls">
+    <Position X="0.5" Y="1.5" Width="2.25" />
+    <TypeIdentifier>
+      <HashCode>AAEEAAAAAAAAAQAAAAAAAAIBAAAEAAAYQAAAAAAAAAA=</HashCode>
+      <FileName>Player\PlayerControls.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MortalKombatXI.PlayerInformation">
+    <Position X="3" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>AAAgCACAAAAACAAgIAAAACAAAAAAAAAAAAAAAAAAAAg=</HashCode>
+      <FileName>Player\PlayerInformation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Class Name="MortalKombatXI.SpriteAnimation">
+    <Position X="6.5" Y="1.5" Width="2" />
+    <Members>
+      <Method Name="AnimateAirHit" Hidden="true" />
+      <Method Name="AnimateGroundHit" Hidden="true" />
+      <Method Name="AnimateHandSitHit" Hidden="true" />
+      <Method Name="AnimateHit" Hidden="true" />
+      <Method Name="AnimateHitBlock" Hidden="true" />
+      <Method Name="AnimateHitDown" Hidden="true" />
+      <Method Name="AnimateHitDownBlock" Hidden="true" />
+      <Field Name="animateInProgress" Hidden="true" />
+      <Method Name="AnimateLeftHandHit" Hidden="true" />
+      <Method Name="AnimateMakeBlock" Hidden="true" />
+      <Method Name="AnimateMakeDownBlock" Hidden="true" />
+      <Method Name="AnimateMoveLeft" Hidden="true" />
+      <Method Name="AnimateMoveRight" Hidden="true" />
+      <Method Name="AnimateRemoveBlock" Hidden="true" />
+      <Method Name="AnimateRemoveDownBlock" Hidden="true" />
+      <Method Name="AnimateRightHandHit" Hidden="true" />
+      <Method Name="AnimateSit" Hidden="true" />
+      <Method Name="AnimateSitDown" Hidden="true" />
+      <Method Name="AnimateStandUp" Hidden="true" />
+      <Method Name="AnimateStay" Hidden="true" />
+      <Method Name="AnimateUppercodeSitHit" Hidden="true" />
+      <Method Name="AnimateUppercodeStayHit" Hidden="true" />
+      <Method Name="AnimateWin" Hidden="true" />
+      <Field Name="currentFrame" Hidden="true" />
+      <Field Name="currentKbState" Hidden="true" />
+      <Field Name="currentMove" Hidden="true" />
+      <Property Name="CurrentTexture" Hidden="true" />
+      <Field Name="interval" Hidden="true" />
+      <Field Name="invertMove" Hidden="true" />
+      <Field Name="isBlock" Hidden="true" />
+      <Field Name="isSitDown" Hidden="true" />
+      <Property Name="moveDelta" Hidden="true" />
+      <Property Name="Origin" Hidden="true" />
+      <Field Name="position" Hidden="true" />
+      <Property Name="Position" Hidden="true" />
+      <Field Name="prevAction" Hidden="true" />
+      <Method Name="Routine" Hidden="true" />
+      <Property Name="SourceRect" Hidden="true" />
+      <Method Name="SpriteAnimation" Hidden="true" />
+      <Field Name="spriteHeight" Hidden="true" />
+      <Property Name="SpriteTexture" Hidden="true" />
+      <Field Name="spriteWidth" Hidden="true" />
+      <Field Name="startMove" Hidden="true" />
+      <Method Name="Stop" Hidden="true" />
+      <Field Name="timer" Hidden="true" />
+      <Method Name="Win" Hidden="true" />
+    </Members>
+    <Compartments>
+      <Compartment Name="Nested Types" Collapsed="false" />
+    </Compartments>
+    <NestedTypes>
+      <Delegate Name="MortalKombatXI.SpriteAnimation.Action">
+        <TypeIdentifier>
+          <NewMemberFileName>SpriteAnimation.cs</NewMemberFileName>
+        </TypeIdentifier>
+      </Delegate>
+    </NestedTypes>
+    <TypeIdentifier>
+      <HashCode>QBwAECAChCAIAAAgEUIAIACJEABBCUJAoSSJgIhwACI=</HashCode>
+      <FileName>SpriteAnimation.cs</FileName>
+    </TypeIdentifier>
+  </Class>
+  <Enum Name="MortalKombatXI.PlayerState">
+    <Position X="4.75" Y="1.5" Width="1.5" />
+    <TypeIdentifier>
+      <HashCode>QAAAAAAAAICAAAAAAJAUAAAAAAAAAAAQkAAAAAIAAAA=</HashCode>
+      <FileName>Player\PlayerState.cs</FileName>
+    </TypeIdentifier>
+  </Enum>
+  <Font Name="Segoe UI" Size="9" />
+</ClassDiagram>

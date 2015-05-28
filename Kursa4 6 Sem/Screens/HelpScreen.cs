@@ -9,15 +9,16 @@ namespace MortalKombatXI.Screens
 {
     internal class HelpScreen : Screen
     {
-        private Color color = Color.DarkGray;
-        private Color colorAdditional = Color.DarkRed;
-        private Texture2D background;
-        private Rectangle backgroundRect;
-        private SpriteFont fontMoves;
-        private SpriteFont fontPlayers;
+        private readonly Color color = Color.DarkGray;
+        private readonly Color colorAdditional = Color.DarkRed;
+        private readonly Texture2D background;
+        private readonly Rectangle backgroundRect;
+        private readonly SpriteFont fontMoves;
+        private readonly SpriteFont fontPlayers;
         private Vector2 startPosition = new Vector2(100, 100);
-        private int delta = 70;
-        private String[] movesName =
+        private const int Delta = 70;
+
+        private readonly String[] movesName =
         {
             "Move left        ",
             "Move right       ",
@@ -30,8 +31,8 @@ namespace MortalKombatXI.Screens
             "Block            "
         };
 
-        private String[] first;
-        private String[] second;
+        private readonly String[] first;
+        private readonly String[] second;
         
 
         public HelpScreen(Game game, Texture2D background, Rectangle backgroundRect, SpriteFont fontMoves, SpriteFont fontPlayers,  PlayerControls firstPlayer, PlayerControls secondPlayer) : base(game)
@@ -41,25 +42,25 @@ namespace MortalKombatXI.Screens
             this.fontMoves = fontMoves;
             this.fontPlayers = fontPlayers;
             first = new String[9];
-            first[0] = movesName[0] + firstPlayer.MoveLeft.ToString();
-            first[1] = movesName[1] + firstPlayer.MoveRight.ToString();
-            first[2] = movesName[2] + firstPlayer.MoveUp.ToString();
-            first[3] = movesName[3] + firstPlayer.MoveDown.ToString();
-            first[4] = movesName[4] + firstPlayer.HandHitLeft.ToString();
-            first[5] = movesName[5] + firstPlayer.HandHitRight.ToString();
-            first[6] = movesName[6] + firstPlayer.UppercodeHit.ToString();
-            first[7] = movesName[7] + firstPlayer.LegHit.ToString();
-            first[8] = movesName[8] + firstPlayer.Block.ToString();
+            first[0] = movesName[0] + firstPlayer.MoveLeft;
+            first[1] = movesName[1] + firstPlayer.MoveRight;
+            first[2] = movesName[2] + firstPlayer.MoveUp;
+            first[3] = movesName[3] + firstPlayer.MoveDown;
+            first[4] = movesName[4] + firstPlayer.HandHitLeft;
+            first[5] = movesName[5] + firstPlayer.HandHitRight;
+            first[6] = movesName[6] + firstPlayer.UppercodeHit;
+            first[7] = movesName[7] + firstPlayer.LegHit;
+            first[8] = movesName[8] + firstPlayer.Block;
             second = new String[9];
-            second[0] = movesName[0] + secondPlayer.MoveLeft.ToString();
-            second[1] = movesName[1] + secondPlayer.MoveRight.ToString();
-            second[2] = movesName[2] + secondPlayer.MoveUp.ToString();
-            second[3] = movesName[3] + secondPlayer.MoveDown.ToString();
-            second[4] = movesName[4] + secondPlayer.HandHitLeft.ToString();
-            second[5] = movesName[5] + secondPlayer.HandHitRight.ToString();
-            second[6] = movesName[6] + secondPlayer.UppercodeHit.ToString();
-            second[7] = movesName[7] + secondPlayer.LegHit.ToString();
-            second[8] = movesName[8] + secondPlayer.Block.ToString();
+            second[0] = movesName[0] + secondPlayer.MoveLeft;
+            second[1] = movesName[1] + secondPlayer.MoveRight;
+            second[2] = movesName[2] + secondPlayer.MoveUp;
+            second[3] = movesName[3] + secondPlayer.MoveDown;
+            second[4] = movesName[4] + secondPlayer.HandHitLeft;
+            second[5] = movesName[5] + secondPlayer.HandHitRight;
+            second[6] = movesName[6] + secondPlayer.UppercodeHit;
+            second[7] = movesName[7] + secondPlayer.LegHit;
+            second[8] = movesName[8] + secondPlayer.Block;
 
         }
 
@@ -84,13 +85,13 @@ namespace MortalKombatXI.Screens
                 ScreenSpriteBatch.DrawString(
                     fontMoves,
                     first[i],
-                    new Vector2(startPosition.X, startPosition.Y + i * delta),
+                    new Vector2(startPosition.X, startPosition.Y + i * Delta),
                     color);
             for (int i = 0; i < 9; i++)
                 ScreenSpriteBatch.DrawString(
                     fontMoves,
                     second[i],
-                    new Vector2(startPosition.X + 600, startPosition.Y + i * delta),
+                    new Vector2(startPosition.X + 600, startPosition.Y + i * Delta),
                     color);
             base.Draw(gameTime);
         }
